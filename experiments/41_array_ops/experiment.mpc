@@ -1,0 +1,49 @@
+
+"""
+Array operations
+"""
+import operator
+#                                 int fix
+#    "+": operator.add,     etype  1   5
+#    "-": operator.sub,     etype  2   6
+#    "*": operator.mul,     etype  3   7
+#    "/": operator.truediv, etype      8
+
+program.bit_length = 64
+sfix.set_precision(16, 31)
+size = int(program.args[1])
+player = int(program.args[2])
+etype = int(program.args[3])
+
+# default etype 1
+datatype = sint
+op = operator.add
+
+if etype > 3:
+    datatype = sfix
+
+if etype == 5:
+    op = operator.add
+elif etype in [2, 6]:
+    op = operator.sub
+elif etype in [3, 7]:
+    op = operator.mul
+elif etype in [4, 8]:
+    op = operator.truediv
+
+base = 0
+if op in [operator.mul, operator.truediv]:
+    base = 1
+
+inputs = Matrix(player, size, datatype)
+
+for i in range(player):
+    for j in range(size):
+        inputs[i][j] = datatype.get_input_from(i)
+
+result = datatype.Array(size)
+for i in range(size):
+    result[i] = datatype(base);
+    for j in range(player):
+        result[i] = op(result[i],inputs[j][i])
+result.print_reveal_nested()

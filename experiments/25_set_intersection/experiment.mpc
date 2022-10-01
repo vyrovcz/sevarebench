@@ -1,0 +1,37 @@
+bitlength = 64
+
+def intersection(n):
+    d1 = sbit.Matrix(n, bitlength)
+    d2 = sbit.Matrix(n, bitlength)
+    tmp = sbit.Tensor([n,n,bitlength])
+
+    for i in range(n):
+        for j in range(bitlength):
+            d1[i][j] = sbit.get_input_from(0)
+            d2[i][j] = sbit.get_input_from(1)
+
+    for i in range(n):
+        for j in range(n):
+            for k in range(bitlength):
+                tmp[i][j][k] =  ~ d1[i][k] ^ d2[j][k]
+
+    k = bitlength >> 1
+    while k > 0:
+        for i in range(k):
+            j = i*2;
+            for l in range(n):
+                for m in range(n):
+                    tmp[m][l][i] = tmp[m][l][j] & tmp[m][l][j+1]
+        k = k >> 1
+    
+    intersect = sbit.Array(n)
+    for i in range(n):
+        intersect[i] = 0
+        for j in range(n):
+            intersect[i] = intersect[i] ^ tmp[i][j][0]
+   
+    for i in range(n):
+        print_ln("%s", intersect[i].reveal())
+
+size = int(program.args[1])
+intersection(size)

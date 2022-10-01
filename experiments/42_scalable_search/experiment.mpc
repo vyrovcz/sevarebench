@@ -1,0 +1,34 @@
+bitlength = 64
+
+def search(n):
+    dataset = sbit.Matrix(n, bitlength)
+    element = sbit.Array(bitlength)
+
+    for i in range(bitlength):
+        element[i] = sbit.get_input_from(1)
+    
+    for i in range(n):
+        for j in range(bitlength):
+            dataset[i][j] = sbit.get_input_from(0)
+
+    for i in range(n):
+        for j in range(bitlength):
+            dataset[i][j] = ~ dataset[i][j] ^ element[j]
+
+
+    k = bitlength >> 1
+    while k > 0:
+        for i in range(k):
+            j = i*2;
+            for s in range(n):
+                dataset[s][i] = dataset[s][j] & dataset[s][j+1]
+        k = k >> 1
+    
+    found = sbit(0)
+    
+    for i in range(n):
+        found = found ^ dataset[i][0]
+    print_ln("[%s]", found.reveal())
+
+search(int(program.args[1]))
+

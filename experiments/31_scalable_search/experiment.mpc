@@ -1,0 +1,29 @@
+"""
+Scalable search, inspired by Keller
+Adapted by Jacob Obrman
+"""
+
+program.bit_length = 64
+
+def scalable_search(haystack, needle, size):
+
+	result = MemValue(sint(0))
+
+	@for_range(size)
+	def _(i):
+		result.write(result + (haystack[i] == needle))
+
+	print_ln("[%s]", result.reveal())
+
+
+size = int(program.args[1])
+
+haystack = sint.Array(size)
+haystack.input_from(0)
+needle = sint.get_input_from(1)
+
+scalable_search(haystack, needle, size)
+
+print_ln()
+#haystack.print_reveal_nested()
+#print_ln("%s", needle.reveal())

@@ -1,0 +1,34 @@
+"""
+Multi Matrix addition, inspired by Keller
+Adapted by Jacob Obrman
+"""
+
+program.bit_length = 64
+
+size = int(program.args[1])
+player = int(program.args[2])
+
+inputs = Matrix(player, size*size, sint)
+
+for i in range(player):
+    for j in range(size*size):
+        inputs[i][j] = sint.get_input_from(i)
+
+print_str("[")
+@for_range(size*size-1)
+def _(i):
+    result = MemValue(sint(0))
+    @for_range(player)
+    def _(j):
+        result.write(result + inputs[j][i])
+
+    print_str("%s, ", result.reveal())
+
+# need to sum the last column manually for
+# output formatting
+result = MemValue(sint(0))
+@for_range(player)
+def _(j):
+    result.write(result + inputs[j][size*size-1])
+
+print_ln("%s]",  result.reveal())

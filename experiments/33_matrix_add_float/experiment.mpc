@@ -1,0 +1,35 @@
+"""
+Multi Matrix addition, inspired by Keller
+Adapted by Jacob Obrman
+"""
+
+program.bit_length = 64
+sfix.set_precision(16, 31)
+
+size = int(program.args[1])
+player = int(program.args[2])
+
+inputs = Matrix(player, size*size, sfix)
+
+for j in range(player):
+    for i in range(size*size):
+        inputs[j][i] = sfix.get_input_from(j)
+
+print_str("[")
+@for_range(size*size-1)
+def _(i):
+    result = MemValue(sfix(0))
+    @for_range(player)
+    def _(j):
+        result.write(result + inputs[j][i])
+
+    print_str("%s, ", result.reveal())
+
+# need to sum the last column manually for
+# output formatting
+result = MemValue(sfix(0))
+@for_range(player)
+def _(j):
+    result.write(result + inputs[j][size*size-1])
+
+print_ln("%s]",  result.reveal())

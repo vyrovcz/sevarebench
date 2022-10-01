@@ -1,0 +1,52 @@
+"""
+Set intersect, inspired by Keller
+Adapted by Jacob Obrman
+"""
+
+from util import if_else
+
+def scalable_search(haystack, needle, size):
+
+	result = MemValue(sint(0))
+
+	@for_range(size)
+	def _(i):
+		result.write(if_else(haystack[i] == needle, needle, result))
+
+	return result
+
+size = int(program.args[1])
+player = int(program.args[2])
+
+inputs = Matrix(player, size, sint)
+
+for i in range(player):
+    for j in range(size):
+        inputs[i][j] = sint.get_input_from(i)
+
+print_str("[")
+# iterate over player 1 values
+@for_range(size-1)
+def _(i):
+    result = MemValue(sint(0))
+    # start with second player, because we compare the first players values
+    # with everyone elses
+    @for_range(1,player)
+    def _(j):
+        result.write(result + scalable_search(inputs[j], inputs[0][i], size))
+
+    # need to check like this, otherwise result will get overwritten
+    # without the result + scal_search..., if not 0, the needle was
+    # found at least once, then write the needle value
+    result.write(if_else(result == 0, sint(0), inputs[0][i]))
+    print_str("%s, ", result.reveal())
+
+# need to compare the last needle manually for
+# output formatting
+result = MemValue(sint(0))
+@for_range(1,player)
+def _(j):
+    result.write(result + scalable_search(inputs[j], inputs[0][size-1], size))
+
+result.write(if_else(result == 0, sint(0), inputs[0][size-1]))
+print_ln("%s]",  result.reveal())
