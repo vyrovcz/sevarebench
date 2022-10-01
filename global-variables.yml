@@ -1,10 +1,10 @@
 repo: https://github.com/data61/MP-SPDZ.git
 repo_commit: e08a6adb63ea057338f5613645d9d498cb43f2a9
 repo_dir: /root/MP-SPDZ
-repo2: https://testbedaccess:glpat-jg9pLwey1W2wJvRqtLyg@gitlab.lrz.de/tumi8-theses/smc/ba-obrman/code.git
+repo2: https://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@github.com/vyrovcz/sevarebench.git
 # changing the repo_paths requires changing them in pos_helper.sh too
 repo2_dir: /root/sevarebench
-repoupload: https://testbedaccess:glpat-HGpbQkiDmfryXgnPgaxW@gitlab.lrz.de/tumi8-theses/smc/ba-obrman/measurement-data.git
+repoupload: https://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@github.com/vyrovcz/sevaremeasurements.git
 
 #######
 ## Networking environment definitions
