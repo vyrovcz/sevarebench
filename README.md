@@ -1,4 +1,4 @@
-# Benchmark MP-SPDZ programs on TUMI8 [Thesis Reference](https://gitlab.lrz.de/tumi8-theses/smc/ba-obrman/thesis)
+# Benchmark MP-SPDZ programs in pos testing environments
 
 sevarebench is a framework for running [MP-SPDZ](https://github.com/data61/MP-SPDZ#protocols) SMC protocols in a [pos]{https://dl.acm.org/doi/10.1145/3485983.3494841} -enabled testbed environment.
 
@@ -33,7 +33,7 @@ This should print some usage information if successful
 
 ```
 ./sevarebench.sh --config configs/testrun.conf todd,rod,ned &> sevarelog01 &
-disown %-  # zsh disowns by default
+disown %-  # your shell might disown by default
 ```
 
 This syntax backgrounds the experiment run and detaches the process from the shell so that it continues even after disconnect. Track the output of sevarebench in the file `sevarelog01` at any time with (90 is number of previous lines to print):

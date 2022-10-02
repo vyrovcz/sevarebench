@@ -185,7 +185,7 @@ exportFullExperimentResults() {
             i=0
             # get loopfile path for the current variables
             loopinfo=$(find "$resultpath" -name "*$i.loop*" -print -quit)
-            echo "  exporting $protocol"
+            echo "  exporting full measurements $protocol"
             # while we find a next loop info file do
             while [ -n "$loopinfo" ]; do
                 loopvalues=""
