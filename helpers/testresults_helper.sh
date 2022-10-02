@@ -82,7 +82,7 @@ exportShortExperimentResults() {
     done
 
     # generate first line of data dump with column information
-    echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatable"
+    echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB)" >> "$datatable"
     # nodes info in every row, static
     usednodes="${NODES[*]}" 
 
@@ -115,7 +115,7 @@ exportShortExperimentResults() {
                 fi
                 # extract measurement
                 runtime=$(grep "Time =" "$runtimeinfo" | awk '{print $3}')
-                maxRAMused=$(grep "MaxPhysicalMemory" "$runtimeinfo" | cut -d '=' -f 2 | cut -d 'K' -f 1)
+                maxRAMused=$(grep "maxresident)k" "$runtimeinfo" | awk '{print $6}' | cut -d 'm' -f 1)
                 [ -n "$maxRAMused" ] && maxRAMused="$((maxRAMused/1024))"
 
                 ((++i))
@@ -170,8 +170,7 @@ exportFullExperimentResults() {
     done
 
     # generate first line of data dump with column information
-    echo -e "nodes;program;c.domain;adv.model;protocol;comp.intbits;comp.inttriples;comp.vmrounds;
-        ${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatable"
+    echo -e "nodes;program;c.domain;adv.model;protocol;comp.intbits;comp.inttriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatable"
     # nodes info in every row, static
     usednodes="${NODES[*]}" 
 
@@ -254,7 +253,6 @@ exportFullExperimentResults() {
     git push 
     } &> /dev/null || error ${LINENO} "${FUNCNAME[0]} git upload failed"
     okfail ok " upload success" 
-
 }
 
 # find out and set a protocols adversary model
