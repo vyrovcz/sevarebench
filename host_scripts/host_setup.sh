@@ -38,7 +38,7 @@ apt install -y automake build-essential git libboost-dev libboost-thread-dev par
 pip3 install -U numpy
 checkConnection "github.com"
 git clone "$REPO" "$REPO_DIR"
-checkConnection "gitlab.lrz.de"
+###checkConnection "gitlab.lrz.de"
 git clone "$REPO2" "$REPO2_DIR"
 
 # load custom htop config
