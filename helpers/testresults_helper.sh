@@ -83,7 +83,7 @@ exportExperimentResults() {
     done
 
     # generate first line of data dump with column information
-    echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB)" >> "$datatableShort"
+    echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatableShort"
     echo -e "nodes;program;c.domain;adv.model;protocol;comp.intbits;comp.inttriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB);Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s);" >> "$datatableFull"
     # nodes info in every row, static
     usednodes="${NODES[*]}" 
@@ -123,8 +123,14 @@ exportExperimentResults() {
                 maxRAMused=$(grep "maxresident)k" "$runtimeinfo" | awk '{print $6}' | cut -d 'm' -f 1)
                 [ -n "$maxRAMused" ] && maxRAMused="$((maxRAMused/1024))"
 
+                commRounds=$(grep "Data sent =" "$runtimeinfo" | awk '{print $7}')
+                dataSent=$(grep "Data sent =" "$runtimeinfo" | awk '{print $4}')
+                globaldataSent=$(grep "Global data sent =" "$runtimeinfo" | awk '{print $5}')
+                basicComm="${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}"
+
                 # put all collected info into one row (Short)
-                echo -e "${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$loopvalues$runtime;$maxRAMused" >> "$datatableShort"
+                basicInfo="${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol"
+                echo -e "$basicInfo;$loopvalues$runtime;$maxRAMused;$basicComm" >> "$datatableShort"
 
                 ## Full result measurement information
                 ######
@@ -133,11 +139,6 @@ exportExperimentResults() {
                 inttriples=$(grep " integer triples" "$compileinfo" | awk '{print $1}')
                 vmrounds=$(grep " virtual machine rounds" "$compileinfo" | awk '{print $1}')
                 compilevalues="${intbits:-NA};${inttriples:-NA};${vmrounds:-NA}"
-                # extract extended measurement
-                commRounds=$(grep "Data sent =" "$runtimeinfo" | awk '{print $7}')
-                dataSent=$(grep "Data sent =" "$runtimeinfo" | awk '{print $4}')
-                globaldataSent=$(grep "Global data sent =" "$runtimeinfo" | awk '{print $5}')
-                basicComm="${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}"
 
                 declare {Tx,Rx,broadcast,TxRx,passing,partBroadcast,Ex,Ex1to1,Rx1to1,Tx1to1,Txtoall}=""
                 # infolineparser $1=regex $2=var-reference $3=column1 $4=column2 $5=column3
@@ -147,7 +148,7 @@ exportExperimentResults() {
                 infolineparser "Sending/receiving " "TxRx" 2 5 8
                 infolineparser "Passing around " "passing" 3 6 9
                 infolineparser "Partial broadcasting " "partBroadcast" 3 6 9
-                infolineparser "Exchanging " "Ex" 3 6 9
+                infolineparser "Exchanging " "Ex" 2 5 8
                 infolineparser "Exchanging one-to-one " "Ex1to1" 3 6 9
                 infolineparser "Receiving one-to-one " "Rx1to1" 3 6 9
                 infolineparser "Sending one-to-one " "Tx1to1" 3 6 9
@@ -156,7 +157,7 @@ exportExperimentResults() {
                 measurementvalues="$runtime;$maxRAMused;$basicComm;$Tx;$Rx;$broadcast;$TxRx;$passing;$partBroadcast;$Ex;$Ex1to1;$Rx1to1;$Tx1to1;$Txtoall"
 
                 # put all collected info into one row (Full)
-                echo -e "${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$compilevalues;$loopvalues$measurementvalues" >> "$datatableFull"
+                echo -e "$basicInfo;$compilevalues;$loopvalues$measurementvalues" >> "$datatableFull"
 
                 # locate next loop file
                 ((++i))
@@ -187,7 +188,7 @@ exportExperimentResults() {
         GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone "${repourl// /}" git-upload
     fi
 
-    echo " pushing experiment measurement data to git repo $repourl"
+    echo " pushing experiment measurement data to git repo$repourl"
     cd git-upload || error ${LINENO} "${FUNCNAME[0]} cd into gitrepo failed"
     {
     # a pull is not really required, but for small sizes it doesn't hurt

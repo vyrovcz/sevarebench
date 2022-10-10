@@ -191,7 +191,7 @@ setParameters() {
             --all)
                 PROTOCOLS=( "${supportedFieldProtocols[@]}" "${supportedRingProtocols[@]}" "${supportedBinaryProtocols[@]}")
                 # remove real-bmr for explosive runtime costs, need to specify specificly
-                PROTOCOLS=( "${PROTOCOLS[@]// real-bmr/}" );;
+                PROTOCOLS=( "${PROTOCOLS[@]//real-bmr/}" );;
             -i|--input)
                 setArray INPUTS "$2"
                 shift;;
