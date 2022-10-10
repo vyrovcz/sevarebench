@@ -1,5 +1,5 @@
 #!/bin/bash
-#### shellcheck disable=SC2076,SC2154
+# shellcheck disable=SC2154,2034
 
 # where we find the experiment results
 resultpath="$RPATH/${NODES[0]}/"
@@ -139,62 +139,17 @@ exportExperimentResults() {
                 globaldataSent=$(grep "Global data sent =" "$runtimeinfo" | awk '{print $5}')
                 basicComm="${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}"
 
-                RxMB=$(grep "Receiving directly " "$runtimeinfo" | awk '{print $3}')
-                RxRounds=$(grep "Receiving directly " "$runtimeinfo" | awk '{print $6}')
-                RxSec=$(grep "Receiving directly " "$runtimeinfo" | awk '{print $9}')
-                Rx="${RxMB:-NA};${RxRounds:-NA};${RxSec:-NA}"
-
-                TxMB=$(grep "Sending directly " "$runtimeinfo" | awk '{print $3}')
-                TxRounds=$(grep "Sending directly " "$runtimeinfo" | awk '{print $6}')
-                TxSec=$(grep "Sending directly " "$runtimeinfo" | awk '{print $9}')
-                Tx="${TxMB:-NA};${TxRounds:-NA};${TxSec:-NA}"
-
-                broadcastMB=$(grep "Broadcasting " "$runtimeinfo" | awk '{print $2}')
-                broadcastRounds=$(grep "Broadcasting " "$runtimeinfo" | awk '{print $5}')
-                broadcastSec=$(grep "Broadcasting " "$runtimeinfo" | awk '{print $8}')
-                broadcast="${broadcastMB:-NA};${broadcastRounds:-NA};${broadcastSec:-NA}"
-
-                TxRxMB=$(grep "Sending/receiving " "$runtimeinfo" | awk '{print $2}')
-                TxRxRounds=$(grep "Sending/receiving " "$runtimeinfo" | awk '{print $5}')
-                TxRxSec=$(grep "Sending/receiving " "$runtimeinfo" | awk '{print $8}')
-                TxRx="${TxRxMB:-NA};${TxRxRounds:-NA};${TxRxSec:-NA}"
-
-                passingMB=$(grep "Passing around " "$runtimeinfo" | awk '{print $3}')
-                passingRounds=$(grep "Passing around " "$runtimeinfo" | awk '{print $6}')
-                passingSec=$(grep "Passing around " "$runtimeinfo" | awk '{print $9}')
-                passing="${passingMB:-NA};${passingRounds:-NA};${passingSec:-NA}"
-
-                partBroadcastMB=$(grep "Partial broadcasting " "$runtimeinfo" | awk '{print $3}')
-                partBroadcastRounds=$(grep "Partial broadcasting " "$runtimeinfo" | awk '{print $6}')
-                partBroadcastSec=$(grep "Partial broadcasting " "$runtimeinfo" | awk '{print $9}')
-                partBroadcast="${partBroadcastMB:-NA};${partBroadcastRounds:-NA};${partBroadcastSec:-NA}"
-
-                ExMB=$(grep "Exchanging " "$runtimeinfo" | head -n 1 | awk '{print $3}')
-                ExRounds=$(grep "Exchanging " "$runtimeinfo" | head -n 1 | awk '{print $6}')
-                ExSec=$(grep "Exchanging " "$runtimeinfo" | head -n 1 | awk '{print $9}')
-                Ex="${ExMB:-NA};${ExRounds:-NA};${ExSec:-NA}"
-
-                Ex1to1MB=$(grep "Exchanging one-to-one " "$runtimeinfo" | head -n 1 | awk '{print $3}')
-                Ex1to1Rounds=$(grep "Exchanging one-to-one " "$runtimeinfo" | head -n 1 | awk '{print $6}')
-                Ex1to1Sec=$(grep "Exchanging one-to-one " "$runtimeinfo" | head -n 1 | awk '{print $9}')
-                Ex1to1="${Ex1to1MB:-NA};${Ex1to1Rounds:-NA};${Ex1to1Sec:-NA}"
-
-                Rx1to1MB=$(grep "Receiving one-to-one " "$runtimeinfo" | awk '{print $3}')
-                Rx1to1Rounds=$(grep "Receiving one-to-one " "$runtimeinfo" | awk '{print $6}')
-                Rx1to1Sec=$(grep "Receiving one-to-one " "$runtimeinfo" | awk '{print $9}')
-                Rx1to1="${Rx1to1MB:-NA};${Rx1to1Rounds:-NA};${Rx1to1Sec:-NA}"
-
-                ###Tx1to1MB=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $3}')
-                ###Tx1to1Rounds=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $6}')
-                ###Tx1to1Sec=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $9}')
-                ###Tx1to1="${Tx1to1MB:-NA};${Tx1to1Rounds:-NA};${Tx1to1Sec:-NA}"
-
-                ###TxtoallMB=$(grep "Sending to all " "$runtimeinfo" | awk '{print $4}')
-                ###TxtoallRounds=$(grep "Sending to all " "$runtimeinfo" | awk '{print $7}')
-                ###TxtoallSec=$(grep "Sending to all " "$runtimeinfo" | awk '{print $10}')
-                ###Txtoall="${TxtoallMB:-NA};${TxtoallRounds:-NA};${TxtoallSec:-NA}"
-
-                declare {Tx1to1,Txtoall}=""
+                declare {Tx,Rx,broadcast,TxRx,passing,partBroadcast,Ex,Ex1to1,Rx1to1,Tx1to1,Txtoall}=""
+                # infolineparser $1=regex $2=var-reference $3=column1 $4=column2 $5=column3
+                infolineparser "Sending directly " "Tx" 3 6 9
+                infolineparser "Receiving directly " "Rx" 3 6 9
+                infolineparser "Broadcasting " "broadcast" 2 5 8
+                infolineparser "Sending/receiving " "TxRx" 2 5 8
+                infolineparser "Passing around " "passing" 3 6 9
+                infolineparser "Partial broadcasting " "partBroadcast" 3 6 9
+                infolineparser "Exchanging " "Ex" 3 6 9
+                infolineparser "Exchanging one-to-one " "Ex1to1" 3 6 9
+                infolineparser "Receiving one-to-one " "Rx1to1" 3 6 9
                 infolineparser "Sending one-to-one " "Tx1to1" 3 6 9
                 infolineparser "Sending to all " "Txtoall" 4 7 10
 
@@ -246,16 +201,15 @@ exportExperimentResults() {
 }
 
 infolineparser() {
-
+    # infolineparser $1=regex $2=var-reference $3=column1 $4=column2 $5=column3
     regex="$1"
     # get reference
     declare -n target="$2"
 
-    MB=$(grep "$regex" "$runtimeinfo" | awk -v c="$3" '{print $c}')
-    Rounds=$(grep "$regex" "$runtimeinfo" | awk -v c="$4" '{print $c}')
-    Sec=$(grep "$regex" "$runtimeinfo" | awk -v c="$5" '{print $c}')
+    MB=$(grep "$regex" "$runtimeinfo" | head -n 1 | awk -v c="$3" '{print $c}')
+    Rounds=$(grep "$regex" "$runtimeinfo" | head -n 1 | awk -v c="$4" '{print $c}')
+    Sec=$(grep "$regex" "$runtimeinfo" | head -n 1 | awk -v c="$5" '{print $c}')
     target="${MB:-NA};${Rounds:-NA};${Sec:-NA}"
-
 }
 
 # find out and set a protocols adversary model
