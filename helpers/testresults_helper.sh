@@ -137,7 +137,7 @@ exportExperimentResults() {
                 commRounds=$(grep "Data sent =" "$runtimeinfo" | awk '{print $7}')
                 dataSent=$(grep "Data sent =" "$runtimeinfo" | awk '{print $4}')
                 globaldataSent=$(grep "Global data sent =" "$runtimeinfo" | awk '{print $5}')
-                basicComm=${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}
+                basicComm="${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}"
 
                 RxMB=$(grep "Receiving directly " "$runtimeinfo" | awk '{print $3}')
                 RxRounds=$(grep "Receiving directly " "$runtimeinfo" | awk '{print $6}')
@@ -184,15 +184,19 @@ exportExperimentResults() {
                 Rx1to1Sec=$(grep "Receiving one-to-one " "$runtimeinfo" | awk '{print $9}')
                 Rx1to1="${Rx1to1MB:-NA};${Rx1to1Rounds:-NA};${Rx1to1Sec:-NA}"
 
-                Tx1to1MB=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $3}')
-                Tx1to1Rounds=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $6}')
-                Tx1to1Sec=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $9}')
-                Tx1to1="${Tx1to1MB:-NA};${Tx1to1Rounds:-NA};${Tx1to1Sec:-NA}"
-                
-                TxtoallMB=$(grep "Sending to all " "$runtimeinfo" | awk '{print $4}')
-                TxtoallRounds=$(grep "Sending to all " "$runtimeinfo" | awk '{print $7}')
-                TxtoallSec=$(grep "Sending to all " "$runtimeinfo" | awk '{print $10}')
-                Txtoall="${TxtoallMB:-NA};${TxtoallRounds:-NA};${TxtoallSec:-NA}"
+                ###Tx1to1MB=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $3}')
+                ###Tx1to1Rounds=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $6}')
+                ###Tx1to1Sec=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $9}')
+                ###Tx1to1="${Tx1to1MB:-NA};${Tx1to1Rounds:-NA};${Tx1to1Sec:-NA}"
+
+                ###TxtoallMB=$(grep "Sending to all " "$runtimeinfo" | awk '{print $4}')
+                ###TxtoallRounds=$(grep "Sending to all " "$runtimeinfo" | awk '{print $7}')
+                ###TxtoallSec=$(grep "Sending to all " "$runtimeinfo" | awk '{print $10}')
+                ###Txtoall="${TxtoallMB:-NA};${TxtoallRounds:-NA};${TxtoallSec:-NA}"
+
+                declare {Tx1to1,Txtoall}=""
+                infolineparser "Sending one-to-one " "Tx1to1" 3 6 9
+                infolineparser "Sending to all " "Txtoall" 4 7 10
 
                 measurementvalues="$runtime;$maxRAMused;$basicComm;$Tx;$Rx;$broadcast;$TxRx;$passing;$partBroadcast;$Ex;$Ex1to1;$Rx1to1;$Tx1to1;$Txtoall"
 
@@ -239,6 +243,19 @@ exportExperimentResults() {
     git push 
     } &> /dev/null || error ${LINENO} "${FUNCNAME[0]} git upload failed"
     okfail ok " upload success" 
+}
+
+infolineparser() {
+
+    regex="$1"
+    # get reference
+    declare -n target="$2"
+
+    MB=$(grep "$regex" "$runtimeinfo" | awk -v c="$3" '{print $c}')
+    Rounds=$(grep "$regex" "$runtimeinfo" | awk -v c="$4" '{print $c}')
+    Sec=$(grep "$regex" "$runtimeinfo" | awk -v c="$5" '{print $c}')
+    target="${MB:-NA};${Rounds:-NA};${Sec:-NA}"
+
 }
 
 # find out and set a protocols adversary model
