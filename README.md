@@ -1,8 +1,28 @@
 # Benchmark MP-SPDZ programs in pos testing environments
 
-sevarebench is a framework for running [MP-SPDZ](https://github.com/data61/MP-SPDZ#protocols) SMC protocols in a [pos]{https://dl.acm.org/doi/10.1145/3485983.3494841} -enabled testbed environment.
+sevarebench is a framework for running [MP-SPDZ](https://github.com/data61/MP-SPDZ#protocols) SMC protocols in a [pos]({)https://dl.acm.org/doi/10.1145/3485983.3494841) -enabled testbed environment.
 
 ## How to
+
+### To enable git-upload of the measurement data
+To use this functionality, a repository to store the measurement results is required. How it would work with [github.com](https://github.com/new)
+
+Change global-variables.yml in line "repoupload: git@github.com:reponame/sevaremeasurements.git" to your repository name.
+
+Then you need a ssh keypair. The key needs to be installed on the pos management server. Typically you can check by running the command
+
+```
+less ~/.ssh/id_rsa.pub
+```
+
+If this displays your ssh public key (ssh-... ... user@host), you could use it in your git repo settings or create a new key-lock pair with 
+```
+ssh-keygen
+```
+
+Use the public key to create a new deploy key for your repository. Add a new Deploy key under "Deploy keys" in the repository settings. Activate "Allow write access".
+[docs.github.com Deploy Keys](https://docs.github.com/en/developers/overview/managing-deploy-keys#deploy-keys)
+
 
 ### Start experiment measurement
 
@@ -23,7 +43,7 @@ pos calendar create -s "now" -d 40 todd rod ned
 3. Make `servarebench.sh` executable and test usage printing
 
 ```
-chmod 744 sevarebench.sh
+chmod 740 sevarebench.sh
 ./sevarebench.sh
 ```
 
