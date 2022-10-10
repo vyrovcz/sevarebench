@@ -84,7 +84,7 @@ exportExperimentResults() {
 
     # generate first line of data dump with column information
     echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatableShort"
-    echo -e "nodes;program;c.domain;adv.model;protocol;comp.intbits;comp.inttriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB);Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s);" >> "$datatableFull"
+    echo -e "nodes;program;c.domain;adv.model;protocol;comp.P0intin;comp.P1intin;comp.P2intin;comp.P0bitin;comp.P1bitin;compP2bitin;comp.intbits;comp.inttriples;comp.bittriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB);Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s);" >> "$datatableFull"
     # nodes info in every row, static
     usednodes="${NODES[*]}" 
 
@@ -135,10 +135,20 @@ exportExperimentResults() {
                 ## Full result measurement information
                 ######
                 # extract compile information (this is repeated many times, potential to optimize)
+                p0intin=$(grep " integer inputs from player 0" "$compileinfo" | awk '{print $1}')
+                p1intin=$(grep " integer inputs from player 1" "$compileinfo" | awk '{print $1}')
+                p2intin=$(grep " integer inputs from player 2" "$compileinfo" | awk '{print $1}')
+                p0bitin=$(grep " bit inputs from player 0" "$compileinfo" | awk '{print $1}')
+                p1bitin=$(grep " bit inputs from player 1" "$compileinfo" | awk '{print $1}')
+                p2bitin=$(grep " bit inputs from player 2" "$compileinfo" | awk '{print $1}')
+                inputs="${p0intin:-NA};${p1intin:-NA};${p2intin:-NA};${p0bitin:-NA};${p1bitin:-NA};${p2bitin:-NA}"
+
                 intbits=$(grep " integer bits" "$compileinfo" | awk '{print $1}')
                 inttriples=$(grep " integer triples" "$compileinfo" | awk '{print $1}')
+                bittriples=$(grep " bit triples" "$compileinfo" | awk '{print $1}')
                 vmrounds=$(grep " virtual machine rounds" "$compileinfo" | awk '{print $1}')
-                compilevalues="${intbits:-NA};${inttriples:-NA};${vmrounds:-NA}"
+
+                compilevalues="$inputs;${intbits:-NA};${inttriples:-NA};${bittriples:-NA};${vmrounds:-NA}"
 
                 declare {Tx,Rx,broadcast,TxRx,passing,partBroadcast,Ex,Ex1to1,Rx1to1,Tx1to1,Txtoall}=""
                 # infolineparser $1=regex $2=var-reference $3=column1 $4=column2 $5=column3
