@@ -84,7 +84,7 @@ exportExperimentResults() {
 
     # generate first line of data dump with column information
     echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB)" >> "$datatableShort"
-    echo -e "nodes;program;c.domain;adv.model;protocol;comp.intbits;comp.inttriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatableFull"
+    echo -e "nodes;program;c.domain;adv.model;protocol;comp.intbits;comp.inttriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB);Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s);" >> "$datatableFull"
     # nodes info in every row, static
     usednodes="${NODES[*]}" 
 
@@ -137,8 +137,64 @@ exportExperimentResults() {
                 commRounds=$(grep "Data sent =" "$runtimeinfo" | awk '{print $7}')
                 dataSent=$(grep "Data sent =" "$runtimeinfo" | awk '{print $4}')
                 globaldataSent=$(grep "Global data sent =" "$runtimeinfo" | awk '{print $5}')
-                [ -n "$maxRAMused" ] && maxRAMused="$((maxRAMused/1024));"
-                measurementvalues="$runtime;$maxRAMused${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}"
+                basicComm=${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}
+
+                RxMB=$(grep "Receiving directly " "$runtimeinfo" | awk '{print $3}')
+                RxRounds=$(grep "Receiving directly " "$runtimeinfo" | awk '{print $6}')
+                RxSec=$(grep "Receiving directly " "$runtimeinfo" | awk '{print $9}')
+                Rx="${RxMB:-NA};${RxRounds:-NA};${RxSec:-NA}"
+
+                TxMB=$(grep "Sending directly " "$runtimeinfo" | awk '{print $3}')
+                TxRounds=$(grep "Sending directly " "$runtimeinfo" | awk '{print $6}')
+                TxSec=$(grep "Sending directly " "$runtimeinfo" | awk '{print $9}')
+                Tx="${TxMB:-NA};${TxRounds:-NA};${TxSec:-NA}"
+
+                broadcastMB=$(grep "Broadcasting " "$runtimeinfo" | awk '{print $2}')
+                broadcastRounds=$(grep "Broadcasting " "$runtimeinfo" | awk '{print $5}')
+                broadcastSec=$(grep "Broadcasting " "$runtimeinfo" | awk '{print $8}')
+                broadcast="${broadcastMB:-NA};${broadcastRounds:-NA};${broadcastSec:-NA}"
+
+                TxRxMB=$(grep "Sending/receiving " "$runtimeinfo" | awk '{print $2}')
+                TxRxRounds=$(grep "Sending/receiving " "$runtimeinfo" | awk '{print $5}')
+                TxRxSec=$(grep "Sending/receiving " "$runtimeinfo" | awk '{print $8}')
+                TxRx="${TxRxMB:-NA};${TxRxRounds:-NA};${TxRxSec:-NA}"
+
+                passingMB=$(grep "Passing around " "$runtimeinfo" | awk '{print $3}')
+                passingRounds=$(grep "Passing around " "$runtimeinfo" | awk '{print $6}')
+                passingSec=$(grep "Passing around " "$runtimeinfo" | awk '{print $9}')
+                passing="${passingMB:-NA};${passingRounds:-NA};${passingSec:-NA}"
+
+                partBroadcastMB=$(grep "Partial broadcasting " "$runtimeinfo" | awk '{print $3}')
+                partBroadcastRounds=$(grep "Partial broadcasting " "$runtimeinfo" | awk '{print $6}')
+                partBroadcastSec=$(grep "Partial broadcasting " "$runtimeinfo" | awk '{print $9}')
+                partBroadcast="${partBroadcastMB:-NA};${partBroadcastRounds:-NA};${partBroadcastSec:-NA}"
+
+                ExMB=$(grep "Exchanging " "$runtimeinfo" | head -n 1 | awk '{print $3}')
+                ExRounds=$(grep "Exchanging " "$runtimeinfo" | head -n 1 | awk '{print $6}')
+                ExSec=$(grep "Exchanging " "$runtimeinfo" | head -n 1 | awk '{print $9}')
+                Ex="${ExMB:-NA};${ExRounds:-NA};${ExSec:-NA}"
+
+                Ex1to1MB=$(grep "Exchanging one-to-one " "$runtimeinfo" | head -n 1 | awk '{print $3}')
+                Ex1to1Rounds=$(grep "Exchanging one-to-one " "$runtimeinfo" | head -n 1 | awk '{print $6}')
+                Ex1to1Sec=$(grep "Exchanging one-to-one " "$runtimeinfo" | head -n 1 | awk '{print $9}')
+                Ex1to1="${Ex1to1MB:-NA};${Ex1to1Rounds:-NA};${Ex1to1Sec:-NA}"
+
+                Rx1to1MB=$(grep "Receiving one-to-one " "$runtimeinfo" | awk '{print $3}')
+                Rx1to1Rounds=$(grep "Receiving one-to-one " "$runtimeinfo" | awk '{print $6}')
+                Rx1to1Sec=$(grep "Receiving one-to-one " "$runtimeinfo" | awk '{print $9}')
+                Rx1to1="${Rx1to1MB:-NA};${Rx1to1Rounds:-NA};${Rx1to1Sec:-NA}"
+
+                Tx1to1MB=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $3}')
+                Tx1to1Rounds=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $6}')
+                Tx1to1Sec=$(grep "Sending one-to-one " "$runtimeinfo" | awk '{print $9}')
+                Tx1to1="${Tx1to1MB:-NA};${Tx1to1Rounds:-NA};${Tx1to1Sec:-NA}"
+                
+                TxtoallMB=$(grep "Sending to all " "$runtimeinfo" | awk '{print $4}')
+                TxtoallRounds=$(grep "Sending to all " "$runtimeinfo" | awk '{print $7}')
+                TxtoallSec=$(grep "Sending to all " "$runtimeinfo" | awk '{print $10}')
+                Txtoall="${TxtoallMB:-NA};${TxtoallRounds:-NA};${TxtoallSec:-NA}"
+
+                measurementvalues="$runtime;$maxRAMused;$basicComm;$Tx;$Rx;$broadcast;$TxRx;$passing;$partBroadcast;$Ex;$Ex1to1;$Rx1to1;$Tx1to1;$Txtoall"
 
                 # put all collected info into one row (Full)
                 echo -e "${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$compilevalues;$loopvalues$measurementvalues" >> "$datatableFull"
@@ -164,15 +220,15 @@ exportExperimentResults() {
     okfail ok "exported short and full results (${datatableShort::-3}tsv)"
 
     # push to measurement data git
+    repourl=$(grep "repoupload" global-variables.yml | cut -d ':' -f 2-)
     # check if upload git does not exist yet
     if [ ! -d git-upload/.git ]; then
         # clone the upload git repo
-        repourl=$(grep "repoupload" global-variables.yml | cut -d ':' -f 2-)
         # default to trust server fingerprint authenticity (usually insecure)
         GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone "${repourl// /}" git-upload
     fi
 
-    echo " pushing experiment measurement data to git repo"
+    echo " pushing experiment measurement data to git repo $repourl"
     cd git-upload || error ${LINENO} "${FUNCNAME[0]} cd into gitrepo failed"
     {
     # a pull is not really required, but for small sizes it doesn't hurt
