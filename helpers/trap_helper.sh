@@ -35,8 +35,7 @@ cleanup() {
 
     echo "exporting measurement results..."
     # create and push Result Plots  
-    exportShortExperimentResults
-    exportFullExperimentResults
+    exportExperimentResults
   else
     rm -rf "$EXPORTPATH" &> /dev/null
   fi

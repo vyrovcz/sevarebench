@@ -51,14 +51,15 @@ verifyExperiment() {
 }
 
 ############
-# Export general experiment data from the pos_upload-ed logs into one table
+# Export experiment data from the pos_upload-ed logs into two tables
 ############
-exportShortExperimentResults() {
+exportExperimentResults() {
 
     # set up location
-    datatable="$EXPORTPATH/data/E${EXPERIMENT::2}_short_results.csv"
-    mkdir -p "$datatable"
-    rm -rf "$datatable"
+    datatableShort="$EXPORTPATH/data/E${EXPERIMENT::2}_short_results.csv"
+    datatableFull="$EXPORTPATH/data/E${EXPERIMENT::2}_full_results.csv"
+    mkdir -p "$datatableShort"
+    rm -rf "$datatableShort"
 
     dyncolumns=""
     # get the dynamic column names from the first .loop info file
@@ -82,7 +83,8 @@ exportShortExperimentResults() {
     done
 
     # generate first line of data dump with column information
-    echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB)" >> "$datatable"
+    echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB)" >> "$datatableShort"
+    echo -e "nodes;program;c.domain;adv.model;protocol;comp.intbits;comp.inttriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatableFull"
     # nodes info in every row, static
     usednodes="${NODES[*]}" 
 
@@ -113,126 +115,53 @@ exportShortExperimentResults() {
                     styleOrange "    Skip - File not found error: runtimeinfo or compileinfo"
                     continue 2
                 fi
+
+                ## Minimum result measurement information
+                ######
                 # extract measurement
                 runtime=$(grep "Time =" "$runtimeinfo" | awk '{print $3}')
                 maxRAMused=$(grep "maxresident)k" "$runtimeinfo" | awk '{print $6}' | cut -d 'm' -f 1)
                 [ -n "$maxRAMused" ] && maxRAMused="$((maxRAMused/1024))"
 
-                ((++i))
-                # put all collected info into one row
-                echo -e "${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$compilevalues;$loopvalues$runtime;$maxRAMused" >> "$datatable"
-                loopinfo=$(find "$resultpath" -name "*$i.loop*" -print -quit)
-            done
-        done
-    done
-    # check if there was something exported
-    rowcount=$(wc -l "$datatable" | awk '{print $1}')
-    if [ "$rowcount" -lt 2 ];then
-        okfail fail "nothing to export"
-        rm "$datatable"
-        return
-    fi
+                # put all collected info into one row (Short)
+                echo -e "${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$loopvalues$runtime;$maxRAMused" >> "$datatableShort"
 
-    # create a tab separated table for pretty formating
-    # convert .csv -> .tsv
-    column -s ';' -t "$datatable" > "${datatable::-3}"tsv
-    okfail ok "exported to ${datatable::-3}{csv, tsc}"
-}
-
-############
-### Export all experiment data from the pos_upload-ed logs into one table
-### and push to git specified in global var
-############
-exportFullExperimentResults() {
-
-    # set up location
-    datatable="$EXPORTPATH/data/E${EXPERIMENT::2}_full_results.csv"
-
-    dyncolumns=""
-    # get the dynamic column names from the first .loop info file
-    loopinfo=$(find "$resultpath" -name "*loop*" -print -quit)
-    
-    # check if loop file exists
-    if [ -z "$loopinfo" ]; then
-        okfail fail "nothing to export - no loop file found"
-        return
-    fi
-
-    for columnname in $(jq -r 'keys_unsorted[]' "$loopinfo"); do
-        dyncolumns+="$columnname"
-        case "$columnname" in
-            freqs) dyncolumns+="(GHz)";;
-            quotas|packetdrops) dyncolumns+="(%)";;
-            latencies) dyncolumns+="(ms)";;
-            bandwidths) dyncolumns+="(Mbs)";;
-        esac
-        dyncolumns+=";"
-    done
-
-    # generate first line of data dump with column information
-    echo -e "nodes;program;c.domain;adv.model;protocol;comp.intbits;comp.inttriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatable"
-    # nodes info in every row, static
-    usednodes="${NODES[*]}" 
-
-    # grab all the measurement information and append it to the datatable
-    for cdomain in "${CDOMAINS[@]}"; do
-        declare -n cdProtocols="${cdomain}PROTOCOLS"
-        for protocol in "${cdProtocols[@]}"; do
-            protocol=${protocol::-8}
-
-            advModel=""
-            setAdvModel "$protocol"
-            i=0
-            # get loopfile path for the current variables
-            loopinfo=$(find "$resultpath" -name "*$i.loop*" -print -quit)
-            echo "  exporting full measurements $protocol"
-            # while we find a next loop info file do
-            while [ -n "$loopinfo" ]; do
-                loopvalues=""
-                # extract loop var values
-                for value in $(jq -r 'values[]' "$loopinfo"); do
-                    loopvalues+="$value;"
-                done
-                
-                compileinfo=$(find "$resultpath" -name "measurementlog${cdomain}_run*$i" -print -quit)
-                runtimeinfo=$(find "$resultpath" -name "testresults$cdomain${protocol}_run*$i" -print -quit)
-                if [ ! -f "$runtimeinfo" ] || [ ! -f "$compileinfo" ]; then
-                    styleOrange "    Skip - File not found error: runtimeinfo or compileinfo"
-                    continue 2
-                fi
+                ## Full result measurement information
+                ######
                 # extract compile information (this is repeated many times, potential to optimize)
                 intbits=$(grep " integer bits" "$compileinfo" | awk '{print $1}')
                 inttriples=$(grep " integer triples" "$compileinfo" | awk '{print $1}')
                 vmrounds=$(grep " virtual machine rounds" "$compileinfo" | awk '{print $1}')
                 compilevalues="${intbits:-NA};${inttriples:-NA};${vmrounds:-NA}"
-                # extract measurement
-                runtime=$(grep "Time =" "$runtimeinfo" | awk '{print $3}')
-                maxRAMused=$(grep "MaxPhysicalMemory" "$runtimeinfo" | cut -d '=' -f 2 | cut -d 'K' -f 1)
+                # extract extended measurement
                 commRounds=$(grep "Data sent =" "$runtimeinfo" | awk '{print $7}')
                 dataSent=$(grep "Data sent =" "$runtimeinfo" | awk '{print $4}')
                 globaldataSent=$(grep "Global data sent =" "$runtimeinfo" | awk '{print $5}')
                 [ -n "$maxRAMused" ] && maxRAMused="$((maxRAMused/1024));"
                 measurementvalues="$runtime;$maxRAMused${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}"
 
+                # put all collected info into one row (Full)
+                echo -e "${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$compilevalues;$loopvalues$measurementvalues" >> "$datatableFull"
+
+                # locate next loop file
                 ((++i))
-                # put all collected info into one row
-                echo -e "${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$compilevalues;$loopvalues$measurementvalues" >> "$datatable"
                 loopinfo=$(find "$resultpath" -name "*$i.loop*" -print -quit)
             done
         done
     done
     # check if there was something exported
-    rowcount=$(wc -l "$datatable" | awk '{print $1}')
+    rowcount=$(wc -l "$datatableShort" | awk '{print $1}')
     if [ "$rowcount" -lt 2 ];then
         okfail fail "nothing to export"
-        rm "$datatable"
+        rm "$datatableShort"
         return
     fi
 
     # create a tab separated table for pretty formating
     # convert .csv -> .tsv
-    column -s ';' -t "$datatable" > "${datatable::-3}"tsv
-    okfail ok "exported to ${datatable::-3}{csv, tsc}"
+    column -s ';' -t "$datatableShort" > "${datatableShort::-3}"tsv
+    column -s ';' -t "$datatableFull" > "${datatableFull::-3}"tsv
+    okfail ok "exported short and full results (${datatableShort::-3}tsv)"
 
     # push to measurement data git
     # check if upload git does not exist yet
