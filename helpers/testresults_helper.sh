@@ -239,7 +239,8 @@ exportFullExperimentResults() {
     if [ ! -d git-upload/.git ]; then
         # clone the upload git repo
         repourl=$(grep "repoupload" global-variables.yml | cut -d ':' -f 2-)
-        git clone "${repourl// /}" git-upload
+        # default to trust server fingerprint authenticity (usually insecure)
+        GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone "${repourl// /}" git-upload
     fi
 
     echo " pushing experiment measurement data to git repo"
