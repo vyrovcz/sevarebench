@@ -83,8 +83,8 @@ exportExperimentResults() {
     done
 
     # generate first line of data dump with column information
-    echo -e "nodes;program;c.domain;adv.model;protocol;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatableShort"
-    echo -e "nodes;program;c.domain;adv.model;protocol;comp.P0intin;comp.P1intin;comp.P2intin;comp.P0bitin;comp.P1bitin;compP2bitin;comp.intbits;comp.inttriples;comp.bittriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB);Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s);" >> "$datatableFull"
+    echo -e "nodes;program;c.domain;adv.model;protocol;partysize;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatableShort"
+    echo -e "nodes;program;c.domain;adv.model;protocol;partysize;comp.P0intin;comp.P1intin;comp.P2intin;comp.P0bitin;comp.P1bitin;compP2bitin;comp.intbits;comp.inttriples;comp.bittriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB);Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s);" >> "$datatableFull"
     # nodes info in every row, static
     usednodes="${NODES[*]}" 
 
@@ -107,6 +107,10 @@ exportExperimentResults() {
                 for value in $(jq -r 'values[]' "$loopinfo"); do
                     loopvalues+="$value;"
                 done
+
+                # the actual number of participants
+                partysize=""
+                setPartySize "$protocol"
                 
                 # get pos filepath of the measurements for the current loop
                 compileinfo=$(find "$resultpath" -name "measurementlog${cdomain}_run*$i" -print -quit)
@@ -129,7 +133,7 @@ exportExperimentResults() {
                 basicComm="${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}"
 
                 # put all collected info into one row (Short)
-                basicInfo="${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol"
+                basicInfo="${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$partysize"
                 echo -e "$basicInfo;$loopvalues$runtime;$maxRAMused;$basicComm" >> "$datatableShort"
 
                 ## Full result measurement information
@@ -237,4 +241,24 @@ setAdvModel() {
     elif [[ " ${semihonestProtocols[*]} " == *" $protocol "* ]]; then
         advModel=semihonest
     fi
+}
+
+# find out the actual party size, the nodecount does not imply the size
+# since the program only uses as many nodes needed from all available
+setPartySize() {
+
+    protocol="$1"
+    nodecount="${#NODES[*]}"
+    partysize=""
+
+    if [[ " ${N4Protocols[*]} " == *" $protocol "* ]]; then
+        partysize="4"
+    elif [[ " ${N3Protocols[*]} " == *" $protocol "* ]]; then
+        partysize="3"
+    elif [[ " ${N2Protocols[*]} " == *" $protocol "* ]]; then
+        partysize="2"
+    fi
+
+    partysize=${partysize:-$nodecount}
+
 }

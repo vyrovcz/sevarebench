@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC1091
+# shellcheck disable=SC1091,2154
 
 #
 # Script is run locally on experiment server.
