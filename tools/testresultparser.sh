@@ -12,9 +12,7 @@ for dir in $1; do
 
     SUMMARYFILE=$(find "$dir" -name "*run-summary.dat")
     [ ! -f "$SUMMARYFILE" ] && { echo "  File not found - skipping"; continue; }
-    [ -f "$EXPORTPATH/$SUMMARYFILE" ] && { echo "  Files maybe already exported - skipping"; continue; }
 
-    cp "$SUMMARYFILE" "$EXPORTPATH/"
     RPATH=$(grep "POS files location" "$SUMMARYFILE" | cut -c 24-)
     [ -z "$RPATH" ] && { echo "  POS files location not found - skipping"; continue; }
 
@@ -38,10 +36,13 @@ for dir in $1; do
     [ "${#BINARYPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( BINARY )
     [ "${#CDOMAINS[*]}" -lt 1 ] && { echo "  CDomains not found - skipping"; continue; }
 
+    [ -f "$EXPORTPATH/$SUMMARYFILE" ] && { echo "  Files maybe already exported - skipping"; continue; }
+    cp "$SUMMARYFILE" "$EXPORTPATH/"
+
     echo "  exporting measurement results to $EXPORTPATH..."
     # create and push Result Plots  
     exportExperimentResults
-    
+
     sleep 1s
 done
 
