@@ -1,7 +1,8 @@
 #!/bin/bash
 # shellcheck disable=2034
 
-source protocols.sh
+source ../protocols.sh
+source ../helpers/testresults_helper.sh
 
 for dir in $1; do
     echo "now applying to $dir"
