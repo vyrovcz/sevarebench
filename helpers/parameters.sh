@@ -303,7 +303,6 @@ setParameters() {
         done
         echo "  Summary file = $SUMMARYFILE"
     } | tee "$SUMMARYFILE"
-    
 }
 
 # inspired by https://unix.stackexchange.com/a/206216

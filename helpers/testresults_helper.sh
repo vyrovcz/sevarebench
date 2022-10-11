@@ -82,7 +82,7 @@ exportExperimentResults() {
         dyncolumns+=";"
     done
 
-    # generate first line of data dump with column information
+    # generate header line of data dump with column information
     echo -e "nodes;program;c.domain;adv.model;protocol;partysize;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" >> "$datatableShort"
     echo -e "nodes;program;c.domain;adv.model;protocol;partysize;comp.P0intin;comp.P1intin;comp.P2intin;comp.P0bitin;comp.P1bitin;compP2bitin;comp.intbits;comp.inttriples;comp.bittriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB);Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s);" >> "$datatableFull"
     # nodes info in every row, static
@@ -92,7 +92,7 @@ exportExperimentResults() {
     for cdomain in "${CDOMAINS[@]}"; do
         declare -n cdProtocols="${cdomain}PROTOCOLS"
         for protocol in "${cdProtocols[@]}"; do
-            protocol=${protocol::-8}
+############protocol=${protocol::-8}
 
             advModel=""
             setAdvModel "$protocol"
@@ -193,26 +193,26 @@ exportExperimentResults() {
     column -s ';' -t "$datatableFull" > "${datatableFull::-3}"tsv
     okfail ok "exported short and full results (${datatableShort::-3}tsv)"
 
-    # push to measurement data git
-    repourl=$(grep "repoupload" global-variables.yml | cut -d ':' -f 2-)
-    # check if upload git does not exist yet
-    if [ ! -d git-upload/.git ]; then
-        # clone the upload git repo
-        # default to trust server fingerprint authenticity (usually insecure)
-        GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone "${repourl// /}" git-upload
-    fi
-
-    echo " pushing experiment measurement data to git repo$repourl"
-    cd git-upload || error ${LINENO} "${FUNCNAME[0]} cd into gitrepo failed"
-    {
-    # a pull is not really required, but for small sizes it doesn't hurt
-    git pull
-    # copy from local folder to git repo folder
-    cp -r ../"${EXPORTPATH::-12}" results/
-    git add . 
-    git commit -a -m "script upload"
-    git push 
-    } &> /dev/null || error ${LINENO} "${FUNCNAME[0]} git upload failed"
+##### push to measurement data git
+####repourl=$(grep "repoupload" global-variables.yml | cut -d ':' -f 2-)
+##### check if upload git does not exist yet
+####if [ ! -d git-upload/.git ]; then
+####    # clone the upload git repo
+####    # default to trust server fingerprint authenticity (usually insecure)
+####    GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone "${repourl// /}" git-upload
+####fi
+####
+####echo " pushing experiment measurement data to git repo$repourl"
+####cd git-upload || error ${LINENO} "${FUNCNAME[0]} cd into gitrepo failed"
+####{
+####    # a pull is not really required, but for small sizes it doesn't hurt
+####    git pull
+####    # copy from local folder to git repo folder
+####    cp -r ../"${EXPORTPATH::-12}" results/
+####    git add . 
+####    git commit -a -m "script upload"
+####    git push 
+####} &> /dev/null || error ${LINENO} "${FUNCNAME[0]} git upload failed"
     okfail ok " upload success" 
 }
 
