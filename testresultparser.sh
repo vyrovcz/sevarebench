@@ -13,6 +13,7 @@ for dir in $1; do
     [ -z "$RPATH" ] && { echo "  POS files location not found - skipping"; continue; }
     read -r -a NODES <<< "$(grep 'Nodes' "$SUMMARYFILE" | cut -c 13-)"
     [ "${#NODES[*]}" -lt 1 ] && { echo "  NODES not found - skipping"; continue; }
+    resultpath="$RPATH/${NODES[0]}/"
 
     EXPERIMENT=$(grep "Experiment = " results/2022-09-12_20-27-08/E35-run-summary.dat | cut -c 18-)
     [ -z "$EXPERIMENT" ] && { echo "  EXPERIMENT not found - skipping"; continue; }
