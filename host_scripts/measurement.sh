@@ -1,10 +1,9 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 
 #
 # Script is run locally on experiment server.
 #
-
-source ../protocols.sh
 
 # exit on error
 set -e
@@ -13,6 +12,7 @@ set -x
 
 REPO_DIR=$(pos_get_variable repo_dir --from-global)
 REPO2_DIR=$(pos_get_variable repo2_dir --from-global)
+source "$REPO2_DIR"/protocols.sh
 EXPERIMENT=$(pos_get_variable experiment --from-global)
 size=$(pos_get_variable input_size --from-loop)
 player=$1

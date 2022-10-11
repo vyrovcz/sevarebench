@@ -254,6 +254,7 @@ setParameters() {
         fi
     done
 
+    # activate computation domain for later handling
     [ "${#FIELDPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( FIELD )
     [ "${#RINGPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( RING )
     [ "${#BINARYPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( BINARY )
