@@ -36,12 +36,13 @@ for dir in $1; do
     [ "${#BINARYPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( BINARY )
     [ "${#CDOMAINS[*]}" -lt 1 ] && { echo "  CDomains not found - skipping"; continue; }
 
-    [ -f "$EXPORTPATH/$SUMMARYFILE" ] && { echo "  Files maybe already exported - skipping"; continue; }
-    cp "$SUMMARYFILE" "$EXPORTPATH/"
+    [ -f "$EXPORTPATH/${SUMMARYFILE:28}" ] && { echo "  Files maybe already exported - skipping"; continue; }
 
     echo "  exporting measurement results to $EXPORTPATH..."
     # create and push Result Plots  
     exportExperimentResults
+
+    cp "$SUMMARYFILE" "$EXPORTPATH/"
 
     sleep 1s
 done
