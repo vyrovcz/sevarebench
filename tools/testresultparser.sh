@@ -8,12 +8,19 @@ source ../helpers/style_helper.sh
 for dir in $1; do
     echo "now applying to $dir"
 
+    EXPORTPATH="${dir::15}/${dir:16}"
+
     SUMMARYFILE=$(find "$dir" -name "*run-summary.dat")
     [ ! -f "$SUMMARYFILE" ] && { echo "  File not found - skipping"; continue; }
+    [ -f "$EXPORTPATH/$SUMMARYFILE" ] && { echo "  Files maybe already exported - skipping"; continue; }
+
+    cp "$SUMMARYFILE" "$EXPORTPATH/"
     RPATH=$(grep "POS files location" "$SUMMARYFILE" | cut -c 24-)
     [ -z "$RPATH" ] && { echo "  POS files location not found - skipping"; continue; }
+
     read -r -a NODES <<< "$(grep 'Nodes' "$SUMMARYFILE" | cut -c 13-)"
     [ "${#NODES[*]}" -lt 1 ] && { echo "  NODES not found - skipping"; continue; }
+
     resultpath="$RPATH/${NODES[0]}/"
     [ ! -d "$resultpath" ] && { echo "  Resultpath not found - different server - skipping"; continue; }
 
@@ -31,13 +38,10 @@ for dir in $1; do
     [ "${#BINARYPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( BINARY )
     [ "${#CDOMAINS[*]}" -lt 1 ] && { echo "  CDomains not found - skipping"; continue; }
 
-
-    EXPORTPATH="${dir::15}/${dir:16}"
-
     echo "  exporting measurement results to $EXPORTPATH..."
     # create and push Result Plots  
     exportExperimentResults
-
+    
     sleep 1s
 done
 
