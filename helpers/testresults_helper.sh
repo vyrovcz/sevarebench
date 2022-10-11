@@ -126,6 +126,7 @@ exportExperimentResults() {
                 runtime=$(grep "Time =" "$runtimeinfo" | awk '{print $3}')
                 maxRAMused=$(grep "maxresident)k" "$runtimeinfo" | awk '{print $6}' | cut -d 'm' -f 1)
                 [ -n "$maxRAMused" ] && maxRAMused="$((maxRAMused/1024))"
+                maxRAMused=${maxRAMused:-NA}
 
                 commRounds=$(grep "Data sent =" "$runtimeinfo" | awk '{print $7}')
                 dataSent=$(grep "Data sent =" "$runtimeinfo" | awk '{print $4}')
