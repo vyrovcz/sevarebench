@@ -3,6 +3,7 @@
 
 source ../protocols.sh
 source ../helpers/testresults_helper.sh
+source ../helpers/style_helper.sh
 
 for dir in $1; do
     echo "now applying to $dir"
@@ -14,6 +15,7 @@ for dir in $1; do
     read -r -a NODES <<< "$(grep 'Nodes' "$SUMMARYFILE" | cut -c 13-)"
     [ "${#NODES[*]}" -lt 1 ] && { echo "  NODES not found - skipping"; continue; }
     resultpath="$RPATH/${NODES[0]}/"
+    [ ! -d "$resultpath" ] && { echo "  Resultpath not found - different server - skipping"; continue; }
 
     EXPERIMENT=$(grep "Experiment = " results/2022-09-12_20-27-08/E35-run-summary.dat | cut -c 18-)
     [ -z "$EXPERIMENT" ] && { echo "  EXPERIMENT not found - skipping"; continue; }
