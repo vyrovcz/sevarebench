@@ -1,14 +1,20 @@
 #!/bin/bash
 # shellcheck disable=2034
 
+source protocols.sh
+
 for dir in $1; do
     echo "now applying to $dir"
 
     SUMMARYFILE=$(find "$dir" -name "*run-summary.dat")
+    [ ! -f "$SUMMARYFILE" ] && { echo "  File not found - skipping"; continue; }
     RPATH=$(grep "POS files location" "$SUMMARYFILE" | cut -c 24-)
+    [ -z "$RPATH" ] && { echo "  POS files location not found - skipping"; continue; }
     read -r -a NODES <<< "$(grep 'Nodes' "$SUMMARYFILE" | cut -c 13-)"
+    [ "${#NODES[*]}" -lt 1 ] && { echo "  NODES not found - skipping"; continue; }
 
     EXPERIMENT=$(grep "Experiment = " results/2022-09-12_20-27-08/E35-run-summary.dat | cut -c 18-)
+    [ -z "$EXPERIMENT" ] && { echo "  EXPERIMENT not found - skipping"; continue; }
 
     read -r -a FIELDPROTOCOLS <<< "$(grep 'Field  =' "$SUMMARYFILE" | cut -c 16-)"
     read -r -a RINGPROTOCOLS <<< "$(grep 'Ring   =' "$SUMMARYFILE" | cut -c 16-)"
@@ -19,8 +25,14 @@ for dir in $1; do
     [ "${#FIELDPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( FIELD )
     [ "${#RINGPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( RING )
     [ "${#BINARYPROTOCOLS[*]}" -gt 0 ] && CDOMAINS+=( BINARY )
+    [ "${#CDOMAINS[*]}" -lt 1 ] && { echo "  CDomains not found - skipping"; continue; }
+
 
     EXPORTPATH="${dir::15}/${dir:16}"
+
+    echo "  exporting measurement results to $EXPORTPATH..."
+    # create and push Result Plots  
+    exportExperimentResults
 
     sleep 1s
 done
