@@ -1,23 +1,15 @@
 #!/bin/bash
 
+#
 # Script is run locally on experiment server.
+#
+
+source ../protocols.sh
 
 # exit on error
 set -e
 # log every command
 set -x
-
-N2Protocols=( yao yaoO )
-#N3Protocols=( replicated-field malicious-rep-field brain ps-rep-field sy-rep-field
-#    malicious-rep-ring ps-rep-ring sy-rep-ring replicated-ring malicious-rep-bin
-#    ps-rep-bin mal-rep-bmr replicated-bin rep-bmr)
-N4Protocols=( rep4-ring )
-
-N3Protocols=( replicated-field malicious-rep-field brain ps-rep-field sy-rep-field
-    malicious-rep-ring ps-rep-ring sy-rep-ring replicated-ring malicious-rep-bin
-    ps-rep-bin replicated-bin )
-
-
 
 REPO_DIR=$(pos_get_variable repo_dir --from-global)
 REPO2_DIR=$(pos_get_variable repo2_dir --from-global)

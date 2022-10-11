@@ -1,27 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2034
-
-# supported protocols split by computational domain
-supportedFieldProtocols=( mascot lowgear highgear cowgear chaigear semi hemi 
-    temi soho malicious-shamir malicious-rep-field ps-rep-field sy-rep-field 
-    shamir atlas replicated-field )
-supportedRingProtocols=( spdz2k semi2k brain malicious-rep-ring ps-rep-ring 
-    sy-rep-ring replicated-ring )
-supportedBinaryProtocols=( tinier real-bmr semi-bin yao yaoO semi-bmr 
-    malicious-rep-bin malicious-ccd ps-rep-bin mal-shamir-bmr mal-rep-bmr 
-    replicated-bin ccd shamir-bmr rep-bmr )
-# protocols split by adversary model
-maldishonestProtocols=( mascot lowgear highgear spdz2k tiny tinier real-bmr )
-covertdishonestProtocols=( cowgear chaigear )
-semidishonestProtocols=( semi hemi temi soho semi2k semi-bin yao yaoO semi-bmr )
-malhonestProtocols=( malicious-shamir malicious-rep-field ps-rep-field sy-rep-field 
-    brain malicious-rep-ring ps-rep-ring sy-rep-ring malicious-rep-bin 
-    malicious-ccd ps-rep-bin mal-rep-bmr mal-shamir-bmr )
-semihonestProtocols=( shamir atlas replicated-field replicated-ring replicated-bin 
-    ccd shamir-bmr rep-bmr )
-# currently unsupported
-##supportedRingProtocols+=( rep4-ring )
-##supportedBinaryProtocols+=( tiny )
+# shellcheck disable=SC2034,2154
 
 usage() {
     styleCyan "$0: $1"
@@ -99,7 +77,7 @@ setArray() { # load array $1 reference with ,-seperated values in $2
 
 TEMPFILES=()
 ALLOC_ID=""
-EXPORTPATH="results/$(date +20%y-%m-%d_%H-%M-%S)"
+EXPORTPATH="results/$(date +20%y-%m)/$(date +%d_%H-%M-%S)"
 # pos_upload resultspath
 RPATH=""
 SUMMARYFILE=""

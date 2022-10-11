@@ -5,14 +5,14 @@ sevarebench is a framework for running [MP-SPDZ](https://github.com/data61/MP-SP
 ## How to
 
 ### To enable git-upload of the measurement data
-To use this functionality, a repository to store the measurement results is required. How it would work with [github.com](https://github.com/new)
+To use this functionality, a repository to store the measurement results is required. How it would work with [github.com](https://github.com/new):
 
 Change global-variables.yml in line "repoupload: git@github.com:reponame/sevaremeasurements.git" to your repository name.
 
-Then you need a ssh keypair. The key needs to be installed on the pos management server. Typically you can check by running the command
+Then you need a ssh keypair. The key needs to be installed on every pos management server. Typically you can check by running the command
 
 ```
-less ~/.ssh/id_rsa.pub
+less -e ~/.ssh/id_rsa.pub
 ```
 
 If this displays your ssh public key (ssh-... ... user@host), you could use it in your git repo settings or create a new key-lock pair with 
