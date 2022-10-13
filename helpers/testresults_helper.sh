@@ -92,7 +92,7 @@ exportExperimentResults() {
     for cdomain in "${CDOMAINS[@]}"; do
         declare -n cdProtocols="${cdomain}PROTOCOLS"
         for protocol in "${cdProtocols[@]}"; do
-############protocol=${protocol::-8}
+        protocol=${protocol::-8}
 
             advModel=""
             setAdvModel "$protocol"
@@ -194,26 +194,26 @@ exportExperimentResults() {
     column -s ';' -t "$datatableFull" > "${datatableFull::-3}"tsv
     okfail ok "exported short and full results (${datatableShort::-3}tsv)"
 
-##### push to measurement data git
-####repourl=$(grep "repoupload" global-variables.yml | cut -d ':' -f 2-)
-##### check if upload git does not exist yet
-####if [ ! -d git-upload/.git ]; then
-####    # clone the upload git repo
-####    # default to trust server fingerprint authenticity (usually insecure)
-####    GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone "${repourl// /}" git-upload
-####fi
-####
-####echo " pushing experiment measurement data to git repo$repourl"
-####cd git-upload || error ${LINENO} "${FUNCNAME[0]} cd into gitrepo failed"
-####{
-####    # a pull is not really required, but for small sizes it doesn't hurt
-####    git pull
-####    # copy from local folder to git repo folder
-####    cp -r ../"${EXPORTPATH::-12}" results/
-####    git add . 
-####    git commit -a -m "script upload"
-####    git push 
-####} &> /dev/null || error ${LINENO} "${FUNCNAME[0]} git upload failed"
+# push to measurement data git
+repourl=$(grep "repoupload" global-variables.yml | cut -d ':' -f 2-)
+# check if upload git does not exist yet
+if [ ! -d git-upload/.git ]; then
+    # clone the upload git repo
+    # default to trust server fingerprint authenticity (usually insecure)
+    GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone "${repourl// /}" git-upload
+fi
+
+echo " pushing experiment measurement data to git repo$repourl"
+cd git-upload || error ${LINENO} "${FUNCNAME[0]} cd into gitrepo failed"
+{
+    # a pull is not really required, but for small sizes it doesn't hurt
+    git pull
+    # copy from local folder to git repo folder
+    cp -r ../"${EXPORTPATH::-12}" results/
+    git add . 
+    git commit -a -m "script upload"
+    git push 
+} &> /dev/null || error ${LINENO} "${FUNCNAME[0]} git upload failed"
     okfail ok " upload success" 
 }
 
