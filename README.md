@@ -1,3 +1,5 @@
+# Testing Branch for TTP extension implementation
+
 # Benchmark MP-SPDZ programs in pos testing environments
 
 sevarebench is a framework for running [MP-SPDZ](https://github.com/data61/MP-SPDZ#protocols) SMC protocols in a [pos](https://dl.acm.org/doi/10.1145/3485983.3494841) -enabled testbed environment.
@@ -9,7 +11,7 @@ To use this functionality, a repository to store the measurement results is requ
 
 Change global-variables.yml in line "repoupload: git@github.com:reponame/sevaremeasurements.git" to your repository name.
 
-Then you need a ssh keypair. The key needs to be installed on every pos management server. Typically you can check by running the command
+Then you need a ssh key on your pos management server. Typically you can check for existing keys by running the command
 
 ```
 less -e ~/.ssh/id_rsa.pub
@@ -29,7 +31,7 @@ Use the public key to create a new deploy key for your repository. Add a new Dep
 1. Clone this repo on the pos management node into directory `sevarebench` and enter it
 
 ```
-ssh -p 10022 <username>@springfield.net.in.tum.de
+ssh -p 10022 <username>@<pos-management-server-hostname>
 git clone https://gitlab.lrz.de/tumi8-theses/smc/ba-obrman/code.git sevarebench
 cd sevarebench
 ```
@@ -37,7 +39,7 @@ cd sevarebench
 2. Reserve two or more nodes with pos to use with sevarebench
 
 ```
-pos calendar create -s "now" -d 40 todd rod ned
+pos calendar create -s "now" -d 40 node1 node2 node3
 ```
 
 3. Make `servarebench.sh` executable and test usage printing
@@ -52,15 +54,21 @@ This should print some usage information if successful
 4. Execute the testrun config to test functionality
 
 ```
-./sevarebench.sh --config configs/testrun.conf todd,rod,ned &> sevarelog01 &
+./sevarebench.sh --config configs/testruns/testrunBasic.conf node1,node2,node3 &> sevarelog01 &
 disown %-  # your shell might disown by default
 ```
 
-This syntax backgrounds the experiment run and detaches the process from the shell so that it continues even after disconnect. Track the output of sevarebench in the file `sevarelog01` at any time with (90 is number of previous lines to print):
+This syntax backgrounds the experiment run and detaches the process from the shell so that it continues even after disconnect. Track the output of sevarebench in the logfile `sevarelog01` at any time with:
 
 ```
-tail -Fn 90 sevarelog01
+tail -F sevarelog01
 ```
+
+Stuck runs should be closed with sigterm code 15 to the process owning all the testnodes processes. For example with 
+```
+htop -u $(whoami)
+```
+and F9. This activates the trap that launches the verification and exporting of the results that have been collected so far, which could take some time. Track the process in the logfile
 
 
 ### Add new experiment
