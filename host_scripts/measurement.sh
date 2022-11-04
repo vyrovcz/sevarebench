@@ -15,6 +15,7 @@ REPO2_DIR=$(pos_get_variable repo2_dir --from-global)
 source "$REPO2_DIR"/protocols.sh
 EXPERIMENT=$(pos_get_variable experiment --from-global)
 size=$(pos_get_variable input_size --from-loop)
+timerf="%M (Maximum resident set size in kbytes)\n%e (Elapsed wall clock time in seconds)\n%P (Percent of CPU this job got)"
 player=$1
 cdomain=$2
 environ=""
@@ -38,17 +39,17 @@ cd "$REPO_DIR"
     if [ ! -f Programs/Bytecode/experiment-"$size"-"$partysize"-"$etype"-0.bc ]; then
         case "$cdomain" in
             RING) 
-                ./compile.py -R 64 experiment "$size" "$partysize" "$etype";;
+                /bin/time -f "$timerf" ./compile.py -R 64 experiment "$size" "$partysize" "$etype";;
             BINARY) 
-                ./compile.py -B 64 experiment "$size" "$partysize" "$etype";;
+                /bin/time -f "$timerf" ./compile.py -B 64 experiment "$size" "$partysize" "$etype";;
             *) # default to FIELD
-                ./compile.py experiment "$size" "$partysize" "$etype";;
+                /bin/time -f "$timerf" ./compile.py experiment "$size" "$partysize" "$etype";;
         esac
     fi
 
     # unconcealed verification run
     "$REPO2_DIR"/experiments/"$EXPERIMENT"/experiment.py "$etype"
-} > measurementlog"$cdomain"
+} &> measurementlog"$cdomain"
 
 ####
 #  environment manipulation section start
@@ -109,7 +110,7 @@ for protocol in "${protocols[@]}"; do
 
     # run the SMC protocol
     $skip ||
-        /bin/time ./"$protocol" -h 10.10."$network".2 $extraflag -p "$player" \
+        /bin/time -f "$timerf" ./"$protocol" -h 10.10."$network".2 $extraflag -p "$player" \
             experiment-"$size"-"$partysize"-"$etype" &> "$log" || success=false
 
     pos_upload --loop "$log"

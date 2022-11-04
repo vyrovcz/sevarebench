@@ -83,8 +83,11 @@ exportExperimentResults() {
     done
 
     # generate header line of data dump with column information
-    echo -e "nodes;program;c.domain;adv.model;protocol;partysize;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB)" > "$datatableShort"
-    echo -e "nodes;program;c.domain;adv.model;protocol;partysize;comp.P0intin;comp.P1intin;comp.P2intin;comp.P0bitin;comp.P1bitin;compP2bitin;comp.intbits;comp.inttriples;comp.bittriples;comp.vmrounds;${dyncolumns}runtime(s);maxPhyRAM(MiB);P0commRounds;P0dataSent(MB);ALLdataSent(MB);Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s)" > "$datatableFull"
+    basicInfo1="nodes;program;c.domain;adv.model;protocol;partysize;compiletime(s);"
+    basicInfo2="${dyncolumns}runtime_internal(s);runtime_external(s);maxPhyRAM(MiB);jobCPU(%);P0commRounds;P0dataSent(MB);ALLdataSent(MB)"
+    compileInfo="comp.P0intin;comp.P1intin;comp.P2intin;comp.P0bitin;comp.P1bitin;compP2bitin;comp.intbits;comp.inttriples;comp.bittriples;comp.vmrounds;"
+    echo -e "${basicInfo1}${basicInfo2}" > "$datatableShort"
+    echo -e "${basicinfo1}${compileInfo}${basicInfo2};Tx(MB);Tx(rounds);Tx(s);Rx(MB);Rx(rounds);Rx(s);Brcasting(MB);Brcasting(rounds);Brcasting(s);TxRx(MB);TxRx(rounds);TxRx(s);Passing(MB);Passing(rounds);Passing(s);Part.Brcasting(MB);Part.Brcasting(rounds);Part.Brcasting(s);Ex(MB);Ex(rounds);Ex(s);Ex1to1(MB);Ex1to1(rounds);Ex1to1(s);Rx1to1(MB);Rx1to1(rounds);Rx1to1(s);Tx1to1(MB);Tx1to1(rounds);Tx1to1(s);Txtoall(MB);Txtoall(rounds);Txtoall(s)" > "$datatableFull"
     # nodes info in every row, static
     usednodes="${NODES[*]}" 
 
@@ -123,8 +126,11 @@ exportExperimentResults() {
                 ## Minimum result measurement information
                 ######
                 # extract measurement
-                runtime=$(grep "Time =" "$runtimeinfo" | awk '{print $3}')
-                maxRAMused=$(grep "maxresident)k" "$runtimeinfo" | awk '{print $6}' | cut -d 'm' -f 1)
+                compiletime=$(grep "Elapsed wall clock" "$compileinfo" | cut -d ' ' -f 1)
+                runtimeint=$(grep "Time =" "$runtimeinfo" | awk '{print $3}')
+                runtimeext=$(grep "Elapsed wall clock" "$runtimeinfo" | cut -d ' ' -f 1)
+                maxRAMused=$(grep "Maximum resident" "$runtimeinfo" | cut -d ' ' -f 1)
+                jobCPU=$(grep "CPU this job" "$runtimeinfo" | cut -d '%' -f 1)
                 [ -n "$maxRAMused" ] && maxRAMused="$((maxRAMused/1024))"
                 maxRAMused=${maxRAMused:-NA}
 
@@ -134,8 +140,8 @@ exportExperimentResults() {
                 basicComm="${commRounds:-NA};${dataSent:-NA};${globaldataSent:-NA}"
 
                 # put all collected info into one row (Short)
-                basicInfo="${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$partysize"
-                echo -e "$basicInfo;$loopvalues$runtime;$maxRAMused;$basicComm" >> "$datatableShort"
+                basicInfo="${usednodes// /,};$EXPERIMENT;$cdomain;$advModel;$protocol;$partysize;${compiletime:-NA}"
+                echo -e "$basicInfo;$loopvalues$runtimeint;$runtimeext;$maxRAMused;$jobCPU;$basicComm" >> "$datatableShort"
 
                 ## Full result measurement information
                 ######
@@ -169,7 +175,7 @@ exportExperimentResults() {
                 infolineparser "Sending one-to-one " "Tx1to1" 3 6 9
                 infolineparser "Sending to all " "Txtoall" 4 7 10
 
-                measurementvalues="$runtime;$maxRAMused;$basicComm;$Tx;$Rx;$broadcast;$TxRx;$passing;$partBroadcast;$Ex;$Ex1to1;$Rx1to1;$Tx1to1;$Txtoall"
+                measurementvalues="$runtimeint;$runtimeext;$maxRAMused;$jobCPU;$basicComm;$Tx;$Rx;$broadcast;$TxRx;$passing;$partBroadcast;$Ex;$Ex1to1;$Rx1to1;$Tx1to1;$Txtoall"
 
                 # put all collected info into one row (Full)
                 echo -e "$basicInfo;$compilevalues;$loopvalues$measurementvalues" >> "$datatableFull"
@@ -223,9 +229,9 @@ infolineparser() {
     # get reference
     declare -n target="$2"
 
-    MB=$(grep "$regex" "$runtimeinfo" | head -n 1 | awk -v c="$3" '{print $c}')
-    Rounds=$(grep "$regex" "$runtimeinfo" | head -n 1 | awk -v c="$4" '{print $c}')
-    Sec=$(grep "$regex" "$runtimeinfo" | head -n 1 | awk -v c="$5" '{print $c}')
+    MB=$(grep "$regex" "$runtimeinfo" | head -n 1 | cut -d ' ' -f "$3")
+    Rounds=$(grep "$regex" "$runtimeinfo" | head -n 1 | cut -d ' ' -f "$4")
+    Sec=$(grep "$regex" "$runtimeinfo" | head -n 1 | cut -d ' ' -f "$5")
     target="${MB:-NA};${Rounds:-NA};${Sec:-NA}"
 }
 
