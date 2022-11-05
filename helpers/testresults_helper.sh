@@ -126,7 +126,7 @@ exportExperimentResults() {
                 ## Minimum result measurement information
                 ######
                 # extract measurement
-                compiletime=$(grep "Elapsed wall clock" "$compileinfo" | cut -d ' ' -f 1)
+                compiletime=$(grep "Elapsed wall clock" "$compileinfo" | tail -n 1 | cut -d ' ' -f 1)
                 runtimeint=$(grep "Time =" "$runtimeinfo" | awk '{print $3}')
                 runtimeext=$(grep "Elapsed wall clock" "$runtimeinfo" | cut -d ' ' -f 1)
                 maxRAMused=$(grep "Maximum resident" "$runtimeinfo" | cut -d ' ' -f 1)
