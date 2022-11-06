@@ -215,7 +215,8 @@ exportExperimentResults() {
         # a pull is not really required, but for small sizes it doesn't hurt
         git pull
         # copy from local folder to git repo folder
-        cp -r ../"$EXPORTPATH" results/
+        [ ! -d results/"${EXPORTPATH::-12}" ] && mkdir results/"${EXPORTPATH::-12}"
+        cp -r ../"$EXPORTPATH" results/"${EXPORTPATH::-12}"
         git add . 
         git commit -a -m "script upload"
         git push 
