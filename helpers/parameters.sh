@@ -43,8 +43,6 @@ help() {
     echo "     --ring           use every supported ring protocol"
     echo "     --binary         use every supported binary protocol"
     echo "     --all            use every supported protocol"
-    ## also, the time-binary can be used to measure the actual time consumption and more
-    #echo " -t, --time           also measure time externally, not only via integrated timer"
     echo -e "\nManipulate Host Environment (optional)"
     echo " -c, --cpu            cpu thread counts, with <Values>"
     echo " -q, --cpuquota       cpu quotas in % (10 < quota), with <Values>"
