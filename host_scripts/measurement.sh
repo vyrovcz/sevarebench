@@ -49,7 +49,7 @@ cd "$REPO_DIR"
 
     # unconcealed verification run
     "$REPO2_DIR"/experiments/"$EXPERIMENT"/experiment.py "$etype"
-} &> measurementlog"$cdomain"
+} |& tee measurementlog"$cdomain"
 
 ####
 #  environment manipulation section start
