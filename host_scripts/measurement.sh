@@ -36,7 +36,8 @@ cd "$REPO_DIR"
 
     # MP-SPDZ specific part: compile experiment
     # only compile if not already compiled
-    if [ ! -f Programs/Bytecode/experiment-"$size"-"$partysize"-"$etype"-0.bc ]; then
+    binarypath="Programs/Bytecode/experiment-$size-$partysize-$etype-0.bc"
+    if [ ! -f "$binarypath" ]; then
         case "$cdomain" in
             RING) 
                 /bin/time -f "$timerf" ./compile.py -R 64 experiment "$size" "$partysize" "$etype";;
@@ -45,6 +46,7 @@ cd "$REPO_DIR"
             *) # default to FIELD
                 /bin/time -f "$timerf" ./compile.py experiment "$size" "$partysize" "$etype";;
         esac
+        echo "$(du -BM "$binarypath" | cut -d 'M' -f 1) (Binary file size in MiB)"
     fi
 
     # unconcealed verification run
