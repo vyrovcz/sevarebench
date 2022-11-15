@@ -20,9 +20,11 @@ player=$1
 cdomain=$2
 environ=""
 read -r -a protocols <<< "$3"
+# test types to simulate changing environments like cpu frequency or network latency
 read -r -a types <<< "$4"
 network="$5"
 partysize=$6
+# experiment type to allow small differences in experiments
 etype=$7
 
 cd "$REPO_DIR"
@@ -143,6 +145,13 @@ esac
 ####
 #  environment manipulation reset section stop
 ####
+
+# if there are no test types
+if [ "${#types[*]}" -lt 1 ]; then
+
+    true
+
+fi
 
 pos_sync --loop
 

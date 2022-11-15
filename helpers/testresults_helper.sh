@@ -83,7 +83,7 @@ exportExperimentResults() {
     done
 
     # generate header line of data dump with column information
-    basicInfo1="program;c.domain;adv.model;protocol;partysize;comp.time(s);comp.peakRAM(MiB);bin.filesize(MiB)"
+    basicInfo1="program;c.domain;adv.model;protocol;partysize;comp.time(s);comp.peakRAM(MiB);bin.filesize(MiB);"
     basicInfo2="${dyncolumns}runtime_internal(s);runtime_external(s);peakRAM(MiB);jobCPU(%);P0commRounds;P0dataSent(MB);ALLdataSent(MB)"
     compileInfo="comp.P0intin;comp.P1intin;comp.P2intin;comp.P0bitin;comp.P1bitin;compP2bitin;comp.intbits;comp.inttriples;comp.bittriples;comp.vmrounds;"
     echo -e "${basicInfo1}${basicInfo2}" > "$datatableShort"
@@ -125,8 +125,8 @@ exportExperimentResults() {
                 ######
                 # extract measurement
                 compiletime=$(grep "Elapsed wall clock" "$compileinfo" | tail -n 1 | cut -d ' ' -f 1)
-                compilemaxRAMused=$(grep "Maximum resident" "$compileinfo" | cut -d ' ' -f 1)
-                binfsize=$(grep "Binary file size" "$compileinfo" | cut -d ' ' -f 1)
+                compilemaxRAMused=$(grep "Maximum resident" "$compileinfo" | tail -n 1 | cut -d ' ' -f 1)
+                binfsize=$(grep "Binary file size" "$compileinfo" | tail -n 1 | cut -d ' ' -f 1)
                 [ -n "$compilemaxRAMused" ] && compilemaxRAMused="$((compilemaxRAMused/1024))"
                 runtimeint=$(grep "Time =" "$runtimeinfo" | awk '{print $3}')
                 runtimeext=$(grep "Elapsed wall clock" "$runtimeinfo" | cut -d ' ' -f 1)
