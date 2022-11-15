@@ -148,9 +148,10 @@ esac
 
 # if there are no test types
 if [ "${#types[*]}" -lt 1 ]; then
-
-    true
-
+    # older binaries won't be needed anymore and can be removed
+    # this is important for a big number of various input sizes
+    # as with many binaries a limited disk space gets consumed up
+    rm -rf Programs/Bytecode/*
 fi
 
 pos_sync --loop
