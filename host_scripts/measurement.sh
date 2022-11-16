@@ -74,7 +74,7 @@ case " ${types[*]} " in
         setLatency;;&
     *" PACKETDROPS "*) # a.k.a. packet loss
         setPacketdrop;;&
-     *" FREQS "*)
+    *" FREQS "*)
         setFrequency
 esac
 
