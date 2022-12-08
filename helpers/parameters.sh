@@ -355,17 +355,17 @@ parseConfig() {
             echo "###   Starting new experiment run ###"
             echo -e "_____________________________________\n"
             # generate the specifications
-            flagsnparas=" --experiment $experiment"
+            flagsnparas=( --experiment "$experiment" )
             for flag in "${!config[@]}"; do
                 # skip experiment flag
-                [ "$flag" != experiments ] && flagsnparas+=" --$flag ${config[$flag]}"
+                [ "$flag" != experiments ] && flagsnparas=( "${flagsnparas[@]}" --"$flag" "${config[$flag]}" )
             done
-            echo "running \"bash $0 $flagsnparas\""
+            echo "running \"bash $0 ${flagsnparas[*]}\""
 
             # run a new instance of sevarebench with the parsed parameters
             # internal flag -x prevents the recursive closing of the process
             # group in the trap logic that would also close this instance
-            bash "$0" -x $flagsnparas || 
+            bash "$0" -x "${flagsnparas[@]}" || 
                 error ${LINENO} "${FUNCNAME[0]}(): stopping config run due to an error"
                 
         done <<< "${config[experiments]}",
