@@ -92,14 +92,17 @@ exportExperimentResults() {
     # grab all the measurement information and append it to the datatable
     for cdomain in "${CDOMAINS[@]}"; do
         declare -n cdProtocols="${cdomain}PROTOCOLS"
+        # track the current loop var file
+        k=1
         for protocol in "${cdProtocols[@]}"; do
         protocol=${protocol::-8}
 
             advModel=""
             setAdvModel "$protocol"
+            # track the current loop var combination/iteration
             i=0
             # get loopfile path for the current variables
-            loopinfo=$(find "$resultpath" -name "*$i.loop*" -print -quit)
+            loopinfo=$(find "$resultpath" -regex '.*run0*.loop' | head -n "$k" | tail -n 1)
             echo "  exporting $protocol"
             # while we find a next loop info file do
             while [ -n "$loopinfo" ]; do
@@ -184,8 +187,11 @@ exportExperimentResults() {
 
                 # locate next loop file
                 ((++i))
+                # find the loopfile for the current loop var file
+                #find "$resultpath" -regex '.*run0*.loop' | head -n "$k" | tail -n 1
                 loopinfo=$(find "$resultpath" -name "*$i.loop*" -print -quit)
             done
+            ((++k))
         done
     done
     # check if there was something exported
