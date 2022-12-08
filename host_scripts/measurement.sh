@@ -78,27 +78,16 @@ case " ${types[*]} " in
             *" PACKETDROPS "*) # a.k.a. packet loss
                 setBandwidthPacketdrop;;
             *)
-                # default means, no combination requested
                 limitBandwidth;;
         esac;;
     *" LATENCIES "*)
-        case " ${types[*]} " in
-            *" BANDWIDTHS "*)
-                setLatencyBandwidth;;
-            *" PACKETDROPS "*)
-                setPacketdropLatency;;
-            *)
-                setLatency;;
-        esac;;
+        if [[ " ${types[*]} " == *" PACKETDROPS "* ]]; then
+            setPacketdropLatency
+        else
+            setLatency
+        fi;;
     *" PACKETDROPS "*)
-        case " ${types[*]} " in
-            *" BANDWIDTHS "*)
-                setBandwidthPacketdrop;;
-            *" LATENCIES "*)
-                setPacketdropLatency;;
-            *)
-                setPacketdrop;;
-        esac;;
+        setPacketdrop;;
 esac
 
 ####
