@@ -81,6 +81,50 @@ setFrequency() {
     return 0
 }
 
+setLatencyBandwidth() {
+
+    latency=$(pos_get_variable latencies --from-loop)
+    bandwidth=$(pos_get_variable bandwidths --from-loop)
+
+    NIC0=$(pos_get_variable "$(hostname)"NIC0 --from-global)
+    NIC1=$(pos_get_variable "$(hostname)"NIC1 --from-global) || NIC1=0
+
+    tc qdisc add dev "$NIC0" root tbf rate "$bandwidth"mbit latency "$latency"ms burst 50kb
+    # check if switch topology (bc in this case only 1 interface pro host)
+    # for 3 interconnected hosts topologies
+    [ "$NIC1" != 0 ] && tc qdisc add dev "$NIC1" root tbf rate "$bandwidth"mbit latency "$latency"ms burst 50kb
+    return 0
+}
+
+setBandwidthPacketdrop() {
+    bandwidth=$(pos_get_variable bandwidths --from-loop)
+    packetdrop=$(pos_get_variable packetdrops --from-loop)
+
+    NIC0=$(pos_get_variable "$(hostname)"NIC0 --from-global)
+    NIC1=$(pos_get_variable "$(hostname)"NIC1 --from-global) || NIC1=0
+
+    tc qdisc add dev "$NIC0" root handle 1:0 netem loss "$packetdrop"%
+    tc qdisc add dev "$NIC0" parent 1:1 handle 10: tbf rate "$bandwidth"mbit burst 50kb limit 50kb
+    # check if switch topology (bc in this case only 1 interface pro host)
+    # for 3 interconnected hosts topologies
+    [ "$NIC1" != 0 ] && tc qdisc add dev "$NIC1" root handle 1:0 netem loss "$packetdrop"%
+    [ "$NIC1" != 0 ] && tc qdisc add dev "$NIC1" parent 1:1 handle 10: tbf rate "$bandwidth"mbit burst 50kb limit 50kb
+    return 0
+}
+
+setPacketdropLatency() {
+    packetdrop=$(pos_get_variable packetdrops --from-loop)
+    latency=$(pos_get_variable latencies --from-loop)
+
+    NIC0=$(pos_get_variable "$(hostname)"NIC0 --from-global)
+    NIC1=$(pos_get_variable "$(hostname)"NIC1 --from-global) || NIC1=0
+
+    tc qdisc add dev "$NIC0" root netem delay "$latency"ms loss "$packetdrop"%
+    # check if switch topology (bc in this case only 1 interface pro host)
+    # for 3 interconnected hosts topologies
+    [ "$NIC1" != 0 ] && tc qdisc add dev "$NIC1" root netem delay "$latency"ms loss "$packetdrop"%
+    return 0
+}
 
 ############
 ##  RESET

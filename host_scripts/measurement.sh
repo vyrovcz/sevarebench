@@ -68,14 +68,37 @@ case " ${types[*]} " in
         limitRAM;;&
     *" QUOTAS "*)
         setQuota;;&
-    *" BANDWIDTHS "*)
-        limitBandwidth;;&
-    *" LATENCIES "*)
-        setLatency;;&
-    *" PACKETDROPS "*) # a.k.a. packet loss
-        setPacketdrop;;&
     *" FREQS "*)
-        setFrequency
+        setFrequency;;&
+    *" BANDWIDTHS "*)
+        # check whether to manipulate a combination
+        case " ${types[*]} " in
+            *" LATENCIES "*)
+                setLatencyBandwidth;;
+            *" PACKETDROPS "*) # a.k.a. packet loss
+                setBandwidthPacketdrop;;
+            *)
+                # default means, no combination requested
+                limitBandwidth;;
+        esac;;
+    *" LATENCIES "*)
+        case " ${types[*]} " in
+            *" BANDWIDTHS "*)
+                setLatencyBandwidth;;
+            *" PACKETDROPS "*)
+                setPacketdropLatency;;
+            *)
+                setLatency;;
+        esac;;
+    *" PACKETDROPS "*)
+        case " ${types[*]} " in
+            *" BANDWIDTHS "*)
+                setBandwidthPacketdrop;;
+            *" LATENCIES "*)
+                setPacketdropLatency;;
+            *)
+                setPacketdrop;;
+        esac;;
 esac
 
 ####
