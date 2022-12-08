@@ -7,7 +7,7 @@ usage() {
     echo "Options: { -e[xperiment] | -n[odes] | -p[rotocols] | -i[nput] | -c[pu] |"
     echo "           -q(--cpuquota) | -f[req] | -r[am] | -l[atency] | -b(andwidth)} |"
     echo "           -d(--packetdrop)"
-    echo -e "\nRun '$0 --help' for more information.\n"
+    echo -e "\nRun '$0 --help' for more information.\n "
     echo "Available experiments:"
 	ls experiments
     echo -e "\nAvailable NODES:"
