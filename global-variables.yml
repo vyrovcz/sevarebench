@@ -11,20 +11,28 @@ repoupload: git@github.com:vyrovcz/sevaremeasurements.git
 #######
 
 # using yaml anchor-alias to define switch topology
-# testbedCoinbase NIC configuration
-bitcoinNIC0: &NICtestbedC eno5
-bitcoincashNIC0: *NICtestbedC
-bitcoingoldNIC0: *NICtestbedC
-
-etherNIC0: *NICtestbedC
-ethercashNIC0: *NICtestbedC
-ethergoldNIC0: *NICtestbedC
-
-dogecoinNIC0: *NICtestbedC
-dogecoincashNIC0: *NICtestbedC
-dogecoingoldNIC0: *NICtestbedC
+# testbedCoinbase NIC configuration 1Gbs link for up to 9 hosts
+## bitcoinNIC0: &NICtestbedC eno5
+## bitcoincashNIC0: *NICtestbedC
+## bitcoingoldNIC0: *NICtestbedC
+## 
+## etherNIC0: *NICtestbedC
+## ethercashNIC0: *NICtestbedC
+## ethergoldNIC0: *NICtestbedC
+## 
+## dogecoinNIC0: *NICtestbedC
+## dogecoincashNIC0: *NICtestbedC
+## dogecoingoldNIC0: *NICtestbedC
 
 # direct connection topology, circularly sorted
+# testbedCoinbase NIC configuration 10Gbs link for up to 3 hosts
+bitcoinNIC0: eno8
+bitcoincashNIC1: eno8
+bitcoincashNIC0: eno7
+bitcoingoldNIC1: eno7
+bitcoingoldNIC0: eno8
+bitcoinNIC1: eno8
+
 # testbedKaunas NIC configuration
 raplaNIC0: enp133s0f1
 tapaNIC1: enp133s0f1

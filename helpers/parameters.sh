@@ -313,64 +313,61 @@ parseConfig() {
     configs=()
     # file or folder?
     if [ -f "$1" ]; then
-        configs=( "$1" )
+        conf="$1"
     elif [ -d "$1" ]; then
-        # add all config files in the folder to the queue 
+        # call sevarebench for each configfile in folder
         while IFS= read -r conf; do
-            configs+=( "$conf" )
+            bash "$0" -x --config "$conf" "$2"
         done < <(find "$1" -maxdepth 1 -name "*.conf" | sort)
+        # done with all the config files, quit
+        exit
     else
         error ${LINENO} "${FUNCNAME[0]}(): no such file or directory: $1"
     fi
 
-    for conf in "${configs[@]}"; do
+    echo -e "\n_____________________________________"
+    echo "###   Starting new config file \"$conf\" ###"
+    echo -e "_____________________________________\n"
+
+    declare -A config
+    while read -r line; do
+        # skip # lines
+        [[ "${line::4}" == *"#"* ]] && continue
+        # sanitize a little by removing everything after any space char
+        sanline="${line%% *}"
+        flag=$(echo "$sanline" | cut -d '=' -f 1)
+        parameter=$(echo "$sanline" | cut -d '=' -f 2-)
+        [ -n "$parameter" ] && config[$flag]="$parameter"
+        # for flags without parameter, cut returns the flag
+        [ "$flag" == "$parameter" ] && config[$flag]=""
+    done < "$conf"
+
+    # also allow specifying the nodes via commandline in the form
+    # ./sevarebench.sh --config xy.conf nodeA,nodeB,...
+    [ -z "${config[nodes]}" ] && config[nodes]="$2"
+    # override mode for externally defined nodes
+    #[ -n "$2" ] && config[nodes]="$2"
+
+    while read -rd , experiment; do
 
         echo -e "\n_____________________________________"
-        echo "###   Starting new config file \"$conf\" ###"
+        echo "###   Starting new experiment run ###"
         echo -e "_____________________________________\n"
+        # generate the specifications
+        flagsnparas=( " --experiment $experiment" )
+        for flag in "${!config[@]}"; do
+            # skip experiment flag
+            if [ "$flag" != experiments ]; then
+                flagsnparas+=( " --$flag ${config[$flag]}" )
+            fi
+        done
+        echo "running \"bash $0 ${flagsnparas[*]}\""
 
-        declare -A config
-        while read -r line; do
-            # skip # lines
-            [[ "${line::4}" == *"#"* ]] && continue
-            # sanitize a little by removing everything after any space char
-            sanline="${line%% *}"
-
-            flag=$(echo "$sanline" | cut -d '=' -f 1)
-            parameter=$(echo "$sanline" | cut -d '=' -f 2-)
-            [ -n "$parameter" ] && config[$flag]="$parameter"
-            # for flags without parameter, cut returns the flag
-            [ "$flag" == "$parameter" ] && config[$flag]=""
-        done < "$conf"
-
-        # also allow specifying the nodes via commandline in the form
-        # ./sevarebench.sh --config xy.conf nodeA,nodeB,...
-        [ -z "${config[nodes]}" ] && config[nodes]="$2"
-        # override mode for externally defined nodes
-        #[ -n "$2" ] && config[nodes]="$2"
-
-        while read -rd , experiment; do
-
-            echo -e "\n_____________________________________"
-            echo "###   Starting new experiment run ###"
-            echo -e "_____________________________________\n"
-            # generate the specifications
-            flagsnparas=" --experiment $experiment"
-            for flag in "${!config[@]}"; do
-                # skip experiment flag
-                if [ "$flag" != experiments ]; then
-                    flagsnparas+=" --$flag ${config[$flag]}"
-                fi
-            done
-            echo "running \"bash $0 $flagsnparas\""
-
-            # run a new instance of sevarebench with the parsed parameters
-            # internal flag -x prevents the recursive closing of the process
-            # group in the trap logic that would also close this instance
-            bash "$0" -x $flagsnparas || 
-                error ${LINENO} "${FUNCNAME[0]}(): stopping config run due to an error"
-                
-        done <<< "${config[experiments]}",
-
-    done
+        # run a new instance of sevarebench with the parsed parameters
+        # internal flag -x prevents the recursive closing of the process
+        # group in the trap logic that would also close this instance
+        bash "$0" -x "${flagsnparas[@]}" || 
+            error ${LINENO} "${FUNCNAME[0]}(): stopping config run due to an error"
+            
+    done <<< "${config[experiments]}",
 }
