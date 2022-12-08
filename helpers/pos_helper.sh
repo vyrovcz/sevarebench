@@ -34,9 +34,9 @@ initializePOS() {
 		TEMPFILES+=( experiment-variables.yml )
 		"$POS" alloc set_var "$node" experiment-variables.yml --as-global;
 
-		# loop variables for experiment script (append random num to mitigate conflicts)
-		loopvarpath="experiments/$EXPERIMENT/loop-variables-$NETWORK.yml"
-		"$POS" alloc set_var "$node" "$loopvarpath" --as-loop;
+###		# loop variables for experiment script (append random num to mitigate conflicts)
+###		loopvarpath="experiments/$EXPERIMENT/loop-variables-$NETWORK.yml"
+###		"$POS" alloc set_var "$node" "$loopvarpath" --as-loop;
 		} || error ${LINENO} " ${FUNCNAME[0]} alloc set_var failed for $node"
 	done
 
@@ -78,6 +78,11 @@ runExperiment() {
 	declare -n cdProtocols="${cdomain}PROTOCOLS"
 		
 	for node in "${NODES[@]}"; do
+
+		# loop variables for experiment script (append random num to mitigate conflicts)
+		loopvarpath="experiments/$EXPERIMENT/loop-variables-$2.yml"
+		"$POS" alloc set_var "$node" "$loopvarpath" --as-loop;
+
 		echo "    execute experiment on host $node..."
 		# the reset removes the compiled binaries, to make place for the next comp domain
 		{ 	"$POS" comm laun --blocking "$node" -- /bin/bash "$path"/experiment-reset.sh;

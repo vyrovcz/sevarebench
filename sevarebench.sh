@@ -39,15 +39,28 @@ source helpers/testresults_helper.sh
 
 for cdomain in "${CDOMAINS[@]}"; do
 
-    echo "running experiment on hosts... (CDomain $cdomain)"
+    echo "running experiment t1 on hosts... (CDomain $cdomain)"
     PIDS=()
-    runExperiment "$cdomain"
+    runExperiment "$cdomain" "t1"
 
     sleep 2 && echo " ...waiting for experiment"
     for pid in "${PIDS[@]}"; do
         # and error on the testnodes can be caught here
         wait "$pid" || getlastoutput
     done
+
+
+    echo "running experiment t2 on hosts... (CDomain $cdomain)"
+    PIDS=()
+    runExperiment "$cdomain" "t2"
+
+    sleep 2 && echo " ...waiting for experiment"
+    for pid in "${PIDS[@]}"; do
+        # and error on the testnodes can be caught here
+        wait "$pid" || getlastoutput
+    done
+
+
     echo "  done with CDomain $cdomain"
 
 done
