@@ -150,7 +150,7 @@ esac
 if [ "${#types[*]}" -lt 1 ]; then
     # older binaries won't be needed anymore and can be removed
     # this is important for a big number of various input sizes
-    # as with many binaries a limited disk space gets consumed up
+    # as with many binaries a limited disk space gets consumed fast
     rm -rf Programs/Bytecode/*
 fi
 

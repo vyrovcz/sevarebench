@@ -12,7 +12,8 @@ import operator
 program.bit_length = 64
 sfix.set_precision(16, 31)
 size = int(program.args[1])
-player = int(program.args[2])
+#player = int(program.args[2])
+player = 2
 etype = int(program.args[3])
 
 # default etype 1
