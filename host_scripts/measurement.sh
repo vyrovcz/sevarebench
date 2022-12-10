@@ -123,6 +123,7 @@ for protocol in "${protocols[@]}"; do
             protocol=yao-party.x
             extraflag="-O"
         fi
+        runflags="${runflags//-u/}"
     fi
 
     # run the SMC protocol
