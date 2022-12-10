@@ -105,7 +105,7 @@ if [ -f CONFIG.mine ]; then
 	compflags=$(pos_get_variable compflags --from-global)
 	sed -i "/^MY_CFLAGS/ s/$/ $compflags/" CONFIG.mine
 else
-	echo "MY_CFLAGS: $compflags" >> experiments/"$EXPERIMENT"/parameters.yml
+	echo "MY_CFLAGS: $compflags" >> CONFIG.mine
 fi
 
 # determine the number of jobs for compiling via available ram and cpu cores
