@@ -100,6 +100,10 @@ tar -xf "$REPO2_DIR"/helpers/SSLcerts.tar
 # activate BMR MultiParty
 sed -i 's/#define MAX_N_PARTIES 3/\/\/#define MAX_N_PARTIES 3/' BMR/config.h
 
+# add custom compile flags
+compflags=$(pos_get_variable compflags --from-global)
+sed -i "/^MY_CFLAGS/ s/$/ $compflags/" CONFIG.mine
+
 # determine the number of jobs for compiling via available ram and cpu cores
 maxcoresram=$(($(grep "MemTotal" /proc/meminfo | awk '{print $2}')/(1024*2500)))
 maxcorescpu=$(($(nproc --all)-1))

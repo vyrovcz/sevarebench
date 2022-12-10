@@ -33,6 +33,8 @@ help() {
     echo " -i, --input          input sizes, with <Values>"
     echo -e "\nOptions (optional)"
     echo "     --etype          experiment type, if applicable, specified with a code"
+    echo "     --compflags      extra flags to compile the protocols with"
+    echo "     --progflags      extra flags to compile the smc program with"
     echo "     --runflags       extra flags to run the protocols with"
     echo "     --config         config files run with <path> as parameter, nodes can be given separatly"
     echo "                      allowed form: $0 --config file.conf [nodeA,...]"
@@ -90,6 +92,8 @@ CONFIGRUN=false
 
 EXPERIMENT=""
 ETYPE=""
+compflags=""
+progflags=""
 runflags=""
 NODES=()
 PROTOCOLS=()
@@ -125,7 +129,7 @@ setParameters() {
     # define the flags for the parameters
     # ':' means that the flag expects an argument.
     SHORT=e:,n:,p:,i:,m,c:,q:,f:,r:,l:,b:,d:,x,h
-    LONG=experiment:,etype:,runflags:,nodes:,protocols:,maldishonest,codishonest,semidishonest,malhonest,semihonest,field,ring,binary,all,input:,measureram,cpu:,cpuquota:,freq:,ram:,swap:,config:,latency:,bandwidth:,packetdrop:,help
+    LONG=experiment:,etype:,compflags:,progflags:,runflags:,nodes:,protocols:,maldishonest,codishonest,semidishonest,malhonest,semihonest,field,ring,binary,all,input:,measureram,cpu:,cpuquota:,freq:,ram:,swap:,config:,latency:,bandwidth:,packetdrop:,help
 
     PARSED=$(getopt --options ${SHORT} \
                     --longoptions ${LONG} \
@@ -144,6 +148,12 @@ setParameters() {
                 shift;;
             --etype)
                 ETYPE="$2"
+                shift;;
+            --compflags)
+                compflags="$2"
+                shift;;
+            --progflags)
+                progflags="$2"
                 shift;;
             --runflags)
                 runflags="$2"
@@ -244,8 +254,22 @@ setParameters() {
     nodetasks=$(pgrep -facu "$(id -u)" "${NODES[0]}")
     [ "$nodetasks" -gt 4 ] && error $LINENO "${FUNCNAME[0]}(): it appears host ${NODES[0]} is currently in use"
 
-    # add extra run flags to parameters yaml
-    # first, delete old runflags
+    # add extra flags to parameters yaml
+    # first, delete old flags
+    sed -i '/compflags/d' experiments/"$EXPERIMENT"/parameters.yml
+    if [ -n "$compflags" ]; then
+        echo "compflags: $compflags" >> experiments/"$EXPERIMENT"/parameters.yml
+    else
+        echo "compflags: " >> experiments/"$EXPERIMENT"/parameters.yml
+    fi
+
+    sed -i '/progflags/d' experiments/"$EXPERIMENT"/parameters.yml
+    if [ -n "$progflags" ]; then
+        echo "progflags: $progflags" >> experiments/"$EXPERIMENT"/parameters.yml
+    else
+        echo "progflags: " >> experiments/"$EXPERIMENT"/parameters.yml
+    fi
+
     sed -i '/runflags/d' experiments/"$EXPERIMENT"/parameters.yml
     if [ -n "$runflags" ]; then
         echo "runflags: $runflags" >> experiments/"$EXPERIMENT"/parameters.yml
