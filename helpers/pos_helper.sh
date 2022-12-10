@@ -33,6 +33,8 @@ initializePOS() {
 		echo experiment: "$EXPERIMENT" > experiment-variables.yml;
 		TEMPFILES+=( experiment-variables.yml )
 		"$POS" alloc set_var "$node" experiment-variables.yml --as-global;
+		# special variables for experiment run
+		"$POS" alloc set_var "$node" experiments/"$EXPERIMENT"/parameters.yml --as-global;
 
 		# loop variables for experiment script (append random num to mitigate conflicts)
 		loopvarpath="experiments/$EXPERIMENT/loop-variables-$NETWORK.yml"
