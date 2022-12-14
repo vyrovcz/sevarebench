@@ -262,21 +262,21 @@ setParameters() {
     rm "tmp$NETWORK"
 
     if [ -n "$compflags" ]; then
-        echo "compflags: $compflags" >> "$parapath"
+        echo -e "\ncompflags: $compflags" >> "$parapath"
     else
-        echo "compflags: " >> "$parapath"
+        echo -e "\ncompflags: " >> "$parapath"
     fi
 
     if [ -n "$progflags" ]; then
-        echo "progflags: $progflags" >> "$parapath"
+        echo -e "\nprogflags: $progflags" >> "$parapath"
     else
-        echo "progflags: " >> "$parapath"
+        echo -e "\nprogflags: " >> "$parapath"
     fi
 
     if [ -n "$runflags" ]; then
-        echo "runflags: $runflags" >> "$parapath"
+        echo -e "\nrunflags: $runflags" >> "$parapath"
     else
-        echo "runflags: " >> "$parapath"
+        echo -e "\nrunflags: " >> "$parapath"
     fi
 
     # split up protocols to computation domains
