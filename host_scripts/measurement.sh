@@ -15,7 +15,7 @@ REPO2_DIR=$(pos_get_variable repo2_dir --from-global)
 source "$REPO2_DIR"/protocols.sh
 EXPERIMENT=$(pos_get_variable experiment --from-global)
 runflags=$(pos_get_variable runflags --from-global)
-[ "$compflags" == None ] && runflags=""
+[ "$runflags" == None ] && runflags=""
 size=$(pos_get_variable input_size --from-loop)
 timerf="%M (Maximum resident set size in kbytes)\n%e (Elapsed wall clock time in seconds)\n%P (Percent of CPU this job got)"
 player=$1
