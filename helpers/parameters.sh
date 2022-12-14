@@ -333,6 +333,9 @@ setParameters() {
         echo "      Ring   = ${RINGPROTOCOLS[*]/-party.x/}"
         echo "      Binary = ${BINARYPROTOCOLS[*]/-party.x/}"
         echo "    Inputs = ${INPUTS[*]}"
+        echo "    Compile flags: $compflags"
+        echo "    Program flags: $progflags"
+        echo "    Run flags: $runflags"
         echo "    Testtypes:"
         for type in "${TTYPES[@]}"; do
             declare -n ttypes="${type}"
