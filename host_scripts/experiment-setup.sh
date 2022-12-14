@@ -104,9 +104,11 @@ sed -i 's/#define MAX_N_PARTIES 3/\/\/#define MAX_N_PARTIES 3/' BMR/config.h
 compflags=$(pos_get_variable compflags --from-global)
 
 if [ "$compflags" != None ]; then
-	[ -f CONFIG.mine ] && sed -i "/^MY_CFLAGS/ s/$/ $compflags/" CONFIG.mine
-else
-	echo "MY_CFLAGS += $compflags" >> CONFIG.mine
+	if [ -f CONFIG.mine ]; then
+		sed -i "/^MY_CFLAGS/ s/$/ $compflags/" CONFIG.mine
+	else
+		echo "MY_CFLAGS += $compflags" >> CONFIG.mine
+	fi
 fi
 
 # determine the number of jobs for compiling via available ram and cpu cores

@@ -15,6 +15,7 @@ REPO2_DIR=$(pos_get_variable repo2_dir --from-global)
 source "$REPO2_DIR"/protocols.sh
 EXPERIMENT=$(pos_get_variable experiment --from-global)
 runflags=$(pos_get_variable runflags --from-global)
+[ "$compflags" == None ] && runflags=""
 size=$(pos_get_variable input_size --from-loop)
 timerf="%M (Maximum resident set size in kbytes)\n%e (Elapsed wall clock time in seconds)\n%P (Percent of CPU this job got)"
 player=$1
@@ -128,7 +129,7 @@ for protocol in "${protocols[@]}"; do
 
     # run the SMC protocol
     $skip ||
-        /bin/time -f "$timerf" ./"$protocol" "$runflags" -h 10.10."$network".2 $extraflag -p "$player" \
+        /bin/time -f "$timerf" ./"$protocol" $runflags -h 10.10."$network".2 $extraflag -p "$player" \
             experiment-"$size"-"$partysize"-"$etype" &> "$log" || success=false
 
     pos_upload --loop "$log"
