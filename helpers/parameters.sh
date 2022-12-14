@@ -239,7 +239,6 @@ setParameters() {
         [ "$requiredNODES" -lt 1 ] && requiredNODES="-1"
     else
         usage "Experiment $EXPERIMENT/parameters.yml not found"
-        exit
     fi
 
     # valid arguments check
@@ -255,26 +254,29 @@ setParameters() {
     [ "$nodetasks" -gt 4 ] && error $LINENO "${FUNCNAME[0]}(): it appears host ${NODES[0]} is currently in use"
 
     # add extra flags to parameters yaml
+    parapath=experiments/"$EXPERIMENT"/parameters.yml
+
     # first, delete old flags
-    sed -i '/compflags/d' experiments/"$EXPERIMENT"/parameters.yml
+    grep -Ev "compflags|progflags|runflags" "$parapath" > tmp$NETWORK
+    cat tmp$NETWORK > "$parapath"
+    rm "tmp$NETWORK"
+
     if [ -n "$compflags" ]; then
-        echo "compflags: $compflags" >> experiments/"$EXPERIMENT"/parameters.yml
+        echo "compflags: $compflags" >> "$parapath"
     else
-        echo "compflags: " >> experiments/"$EXPERIMENT"/parameters.yml
+        echo "compflags: " >> "$parapath"
     fi
 
-    sed -i '/progflags/d' experiments/"$EXPERIMENT"/parameters.yml
     if [ -n "$progflags" ]; then
-        echo "progflags: $progflags" >> experiments/"$EXPERIMENT"/parameters.yml
+        echo "progflags: $progflags" >> "$parapath"
     else
-        echo "progflags: " >> experiments/"$EXPERIMENT"/parameters.yml
+        echo "progflags: " >> "$parapath"
     fi
 
-    sed -i '/runflags/d' experiments/"$EXPERIMENT"/parameters.yml
     if [ -n "$runflags" ]; then
-        echo "runflags: $runflags" >> experiments/"$EXPERIMENT"/parameters.yml
+        echo "runflags: $runflags" >> "$parapath"
     else
-        echo "runflags: " >> experiments/"$EXPERIMENT"/parameters.yml
+        echo "runflags: " >> "$parapath"
     fi
 
     # split up protocols to computation domains

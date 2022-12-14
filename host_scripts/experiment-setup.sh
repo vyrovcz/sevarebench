@@ -102,7 +102,8 @@ sed -i 's/#define MAX_N_PARTIES 3/\/\/#define MAX_N_PARTIES 3/' BMR/config.h
 
 # add custom compile flags
 compflags=$(pos_get_variable compflags --from-global)
-if [ -f CONFIG.mine ]; then
+[ "$compflags" == None ] && 
+if [ "$compflags" != None ] &&[ -f CONFIG.mine ]; then
 	sed -i "/^MY_CFLAGS/ s/$/ $compflags/" CONFIG.mine
 else
 	echo "MY_CFLAGS += $compflags" >> CONFIG.mine
