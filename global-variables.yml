@@ -1,6 +1,6 @@
 repo: https://github.com/data61/MP-SPDZ.git
-repo_commit: e08a6adb63ea057338f5613645d9d498cb43f2a9
-#repo_commit: e904a1b924af0ae7ee58f74776cc232111a7c257
+#repo_commit: e08a6adb63ea057338f5613645d9d498cb43f2a9
+repo_commit: e904a1b924af0ae7ee58f74776cc232111a7c257
 repo_dir: /root/MP-SPDZ
 repo2: https://github.com/vyrovcz/sevarebench.git
 # changing the repo_paths requires changing them in pos_helper.sh too
