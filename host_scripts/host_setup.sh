@@ -49,4 +49,4 @@ cd "$REPO_DIR"
 # use a custom state of the MP-SPDZ repo
 git checkout "$REPO_COMMIT"
 
-echo "global setup successful"
+echo "global setup successful "
