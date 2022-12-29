@@ -1,5 +1,7 @@
 repo: https://github.com/data61/MP-SPDZ.git
+# this commit hash is a stable state
 repo_commit: e08a6adb63ea057338f5613645d9d498cb43f2a9
+# experimental commit state
 #repo_commit: c8799df0f2c80256a6fae82e7d8dc128ae03c58c
 repo_dir: /root/MP-SPDZ
 repo2: https://github.com/vyrovcz/sevarebench.git
