@@ -28,6 +28,8 @@ network="$5"
 partysize=$6
 # experiment type to allow small differences in experiments
 etype=$7
+# default to etype 1 if unset
+etype0=${etype0:-1}
 
 cd "$REPO_DIR"
 
