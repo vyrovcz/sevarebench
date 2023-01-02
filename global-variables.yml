@@ -13,8 +13,8 @@ repoupload: git@github.com:vyrovcz/sevaremeasurements.git
 ## Networking environment definitions
 #######
 
-# using yaml anchor-alias to define switch topology
-# testbedCoinbase NIC configuration
+### using yaml anchor-alias to define switch topology
+## testbedCoinbase NIC configuration
 bitcoinNIC0: &NICtestbedC eno5
 bitcoincashNIC0: *NICtestbedC
 bitcoingoldNIC0: *NICtestbedC
@@ -27,8 +27,8 @@ dogecoinNIC0: *NICtestbedC
 dogecoincashNIC0: *NICtestbedC
 dogecoingoldNIC0: *NICtestbedC
 
-# direct connection topology, circularly sorted
-# testbedKaunas NIC configuration
+### direct connection topology, circularly sorted
+## testbedKaunas NIC configuration
 raplaNIC0: enp133s0f1
 tapaNIC1: enp133s0f1
 tapaNIC0: enp130s0f0
@@ -36,15 +36,16 @@ valgaNIC1: ens5f1
 valgaNIC0: ens5f0
 raplaNIC1: enp130s0f0
 
-# testbedCoinbase NIC configuration
-medlNIC0: ens7f1
+## testbedCoinbase NIC configuration
+# 25G
+meldNIC0: ens7f1
 tinymanNIC1: ens7f1
 tinymanNIC0: ens7f0
 yieldlyNIC1: ens7f1
 yieldlyNIC0: ens7f0
 meldNIC1: ens7f0
 
-# testbedSpringfield NIC configuration
+## testbedSpringfield NIC configuration
 bartNIC0: enp4s0
 homerNIC1: enp4s0
 homerNIC0: enp3s0
