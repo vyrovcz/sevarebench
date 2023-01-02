@@ -27,7 +27,7 @@ dogecoinNIC0: *NICtestbedC
 dogecoincashNIC0: *NICtestbedC
 dogecoingoldNIC0: *NICtestbedC
 
-### direct connection topology, circularly sorted
+### direct connection topology, clockwise circularly sorted
 ## testbedKaunas NIC configuration
 raplaNIC0: enp133s0f1
 tapaNIC1: enp133s0f1
@@ -44,6 +44,14 @@ tinymanNIC0: ens7f0
 yieldlyNIC1: ens7f1
 yieldlyNIC0: ens7f0
 meldNIC1: ens7f0
+
+# 25G
+gardNIC0: enp194s0f0
+goracleNIC1: enp194s0f0
+goracleNIC0: enp194s0f1
+zoneNIC1: enp194s0f1
+zoneNIC0: enp194s0f0
+gardNIC1: enp194s0f1
 
 ## testbedSpringfield NIC configuration
 bartNIC0: enp4s0
