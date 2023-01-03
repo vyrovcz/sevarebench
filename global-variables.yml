@@ -55,8 +55,8 @@ meldNIC1: ens7f0
 
 # 100G temporary indirect with gard as center node
 gardNIC0: enp129s0f0
-goracleNIC1: enp129s0f0
-#goracleNIC0: enp129s0f0
+goracleNIC0: enp129s0f0
+#goracleNIC1: enp129s0f0
 #zoneNIC1: enp129s0f0
 zoneNIC0: enp129s0f0np0
 gardNIC1: enp129s0f1
