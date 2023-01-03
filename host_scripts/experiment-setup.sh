@@ -51,9 +51,9 @@ if [ "$(hostname | grep -cE "gard|goracle|zone")" -eq 1 ]; then
 		ip route add 10.10."$network".3 dev "$nic0"
 		ip route add 10.10."$network".4 dev "$nic1"
 	elif [ "$ipaddr" -eq 3 ]; then
-		ip route add 10.10.10.4 via 10.10.10.2
+		ip route add 10.10."$network".4 via 10.10."$network".2
 	else
-		ip route add 10.10.10.3 via 10.10.10.2
+		ip route add 10.10."$network".3 via 10.10."$network".2
 	fi
 # three nodes direct connection topology if true
 elif [ "$nic1" != 0 ]; then
