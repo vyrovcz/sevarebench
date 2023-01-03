@@ -34,8 +34,29 @@ nic1=$(pos_get_variable "$(hostname)"NIC1 --from-global) || nic1=0
 
 ips=()
 
+######
+### three nodes indirect connection topology setup
+# center node
+if [ "$(hostname | grep -cE "gard|goracle|zone")" -eq 1 ]; then
+
+	ip addr add 10.10."$network"."$ipaddr"/24 dev "$nic0"
+	ip link set dev "$nic0" up
+
+	if [ "$ipaddr" -eq 2 ]; then
+		# activate forwarding for the center node
+		sysctl -w net.ipv4.ip_forward=1
+		ip addr add 10.10."$network"."$ipaddr"/24 dev "$nic1"
+		ip link set dev "$nic1" up
+		# route via correct NICs
+		ip route add 10.10."$network".3 dev "$nic0"
+		ip route add 10.10."$network".4 dev "$nic1"
+	elif [ "$ipaddr" -eq 3 ]; then
+		ip route add 10.10.10.4 via 10.10.10.2
+	else
+		ip route add 10.10.10.3 via 10.10.10.2
+	fi
 # three nodes direct connection topology if true
-if [ "$nic1" != 0 ]; then
+elif [ "$nic1" != 0 ]; then
 
 	# verify that nodes array is circularly sorted
 	# this is required for the definition of this topology
