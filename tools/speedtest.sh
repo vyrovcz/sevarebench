@@ -4,10 +4,10 @@
 apt update && apt install iperf3 -y
 
 # set up recommended MTU
-ip link set dev <NIC> mtu 9000
+#ip link set dev <NIC> mtu 9000
 
 hostname=10.10."$(ip a | grep "10.10." | head -n 1 | cut -d '.' -f 3)".2
-threads=6
+threads=10
 pids=()
 
 ## server
