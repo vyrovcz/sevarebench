@@ -36,16 +36,19 @@ ips=()
 
 ######
 ### three nodes indirect connection topology setup
-# center node
+### node 2 --- node 1 --- node 3
+### for 25G+ speeds set MTU
 if [ "$(hostname | grep -cE "gard|goracle|zone")" -eq 1 ]; then
 
 	ip addr add 10.10."$network"."$ipaddr"/24 dev "$nic0"
+	ip link set dev "$nic0" mtu 9000
 	ip link set dev "$nic0" up
 
 	if [ "$ipaddr" -eq 2 ]; then
 		# activate forwarding for the center node
 		sysctl -w net.ipv4.ip_forward=1
 		ip addr add 10.10."$network"."$ipaddr"/24 dev "$nic1"
+		ip link set dev "$nic1" mtu 9000
 		ip link set dev "$nic1" up
 		# route via correct NICs
 		ip route add 10.10."$network".3 dev "$nic0"
