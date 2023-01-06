@@ -80,6 +80,12 @@ elif [ "$nic1" != 0 ]; then
 	ip route add 10.10."$network"."${ips[0]}" dev "$nic0"
 	ip route add 10.10."$network"."${ips[1]}" dev "$nic1"
 
+	# to achieve high speeds, increase mtu
+	[ "$(hostname | grep -cE "meld|tinyman|yieldly")" -eq 1 ] && {
+		ip link set dev "$nic0" mtu 9700
+		ip link set dev "$nic1" mtu 9700
+	}
+
 # here the testhosts are connected via switch
 else
 	# support any groupsizes
