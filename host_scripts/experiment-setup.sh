@@ -64,7 +64,8 @@ ips=()
 # three nodes direct connection topology if true
 if [ "$nic1" != 0 ]; then
 
-	# verify that nodes array is circularly sorted
+	# verify that nodes array is circularly sorted like
+	# --nodes nodeA,nodeB,nodeC or --node nodeC,nodeA,nodeB
 	# this is required for the definition of this topology
 	
 	# specify the ip pair to create the network routes to
@@ -99,12 +100,6 @@ else
 	ip addr add 10.10."$network"."$ipaddr"/24 dev "$nic0"
 	ip link set dev "$nic0" up
 
-####test implicit route adding, the following could might not be required
-####	# for every other participant
-####	for ip in "${ips[@]}"; do
-####		# add route
-####		ip route add 10.10."$network"."$ip" dev "$nic0"
-####	done
 fi
 
 # wait for others to finish setup
