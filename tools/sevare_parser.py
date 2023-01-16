@@ -149,43 +149,41 @@ def add_empty_lines(file_path):
 parser = argparse.ArgumentParser(
     description='This program parses the measurement folder outputted by sevare-bench (version from 11/22).')
 
-parser.add_argument('filename', type=str, help='Required, name of the test-run folder (normally a date).')
+parser.add_argument('data_dir', type=str, help='Required, name of the test-run folder (normally a date).')
 
 parser.add_argument('-s', type=str, required=False,
                     help='(Optional) When set the table will be sorted by this parameter beforehand.')
 
 args = parser.parse_args()
 
-filename = args.filename
+data_dir = args.data_dir
 
-if filename[len(args.filename)-1] != '/':
-    filename += '/'
+if data_dir[len(args.data_dir)-1] != '/':
+    data_dir += '/'
 
 # ------- PARSING ---------
 
 # Open datatable
-files = [f for f in os.listdir(filename + "data/") if f.endswith(".csv") and "full" in f]
-if len(files) > 0:
-    print("Found full results table...")
-    f = files[0]
-else:
-    files = [f for f in os.listdir(filename + "data/") if f.endswith(".csv") and "short" in f]
-    if len(files) > 0:
-        print("Found short results table...")
-        f = files[0]
-    else:
-        print("Could neither find a short or a full results table in the data/ directory.")
-        exit()
+data_table = None
+for file in os.listdir(data_dir + 'data/'):
+    if file.endswith(".csv") and ("full" in file or "short" in file):
+        print("Found results table...")
+        data_table = file
+        break
 
-f = open(filename + "data/" + f)
+if data_table is None:
+    print("Could not find a csv file with 'full' or 'short' in the name.")
+    exit()
 
-if not os.path.exists(filename + "parsed"):
-    os.mkdir(filename + "parsed")
+data_table = open(data_dir + 'data/' + data_table)
 
-runtimes_file_2D = open(filename + "parsed/runtimes2D.txt", "a")
-info_file = open(filename + "parsed/protocol_infos.txt", "a")
+if not os.path.exists(data_dir + "parsed"):
+    os.mkdir(data_dir + "parsed")
 
-header = f.readline().split(';')
+runtimes_file_2D = open(data_dir + "parsed/runtimes2D.txt", "a")
+info_file = open(data_dir + "parsed/protocol_infos.txt", "a")
+
+header = data_table.readline().split(';')
 
 runtime_index = -1
 protocol_index = -1
@@ -195,7 +193,7 @@ comm_rounds_index = -1
 data_sent_index = -1
 
 variable_array = ["latencies(ms)", "bandwidths(Mbs)", "packetdrops(%)", "freqs(GHz)", "quotas(%)", "cpus", "input_size"]  # Names from the table!
-var_name_array = ["Lat_", "Bdw_", "Pdr_", "Frq_", "Quo_", "Cpu_", "Set_"]  # HAS TO MATCH ABOVE ARRAY - values are hardcoded within script!
+var_name_array = ["Lat_", "Bwd_", "Pdr_", "Frq_", "Quo_", "Cpu_", "Inp_"]  # HAS TO MATCH ABOVE ARRAY - values are hardcoded within script!
 var_val_array = [None] * len(variable_array)  # used to store changing variables
 index_array = [-1] * len(variable_array)
 datafile_array = [None] * len(variable_array)
@@ -226,23 +224,21 @@ for i in range(len(header)):
 # if sorting_index != -1:
 #    dataset_array = sorted(dataset_array, key=get_sorting)
 
-if not os.path.exists(filename + "parsed/2D"):
-    os.mkdir(filename + "parsed/2D")
+if not os.path.exists(data_dir + "parsed/2D"):
+    os.mkdir(data_dir + "parsed/2D")
 
-if not os.path.exists(filename + "parsed/3D"):
-    os.mkdir(filename + "parsed/3D")
+if not os.path.exists(data_dir + "parsed/3D"):
+    os.mkdir(data_dir + "parsed/3D")
 
 # Create array of dataset
-f.readline().split(';')
 protocol = ""
 protocols = []
 comm_rounds_array = []
 data_sent_array = []
 
-dataset = f.readlines()
 dataset_array = []
-for li in dataset:
-    dataset_array.append(li.split(';'))
+for row in data_table.readlines():
+    dataset_array.append(row.split(';'))
 
 # - - - - - - - Parsing for 2D plots - - - - - - - -
 # Go through dataset for each variable
@@ -268,7 +264,7 @@ for i in range(len(index_array)):
             protocols.append(protocol)
 
             # Create 2D file descriptor
-            datafile2D = open(filename + "parsed/2D/" + var_name_array[i] + protocol + ".txt", "a", 1)
+            datafile2D = open(data_dir + "parsed/2D/" + var_name_array[i] + protocol + ".txt", "a", 1)
 
             # Fill up the var_val array with initial values of every other configured parameter - have to be fix (controlled variables)
             for j in range(len(index_array)):
@@ -291,7 +287,7 @@ datafile2D.close()
 
 # - - - - - - 3D PLOTTING - - - - - - -
 var_val_array = [None] * len(variable_array)  # reset vars
-plot3D_var_combo = [("Set_", "Lat_"), ("Set_", "Bdw_"), ("Lat_", "Frq_"), ("Bdw_", "Frq_"), ("Lat_", "Bdw_"), ("Lat_", "Pdr_"), ("Bdw_", "Pdr_")]
+plot3D_var_combo = [("Inp_", "Lat_"), ("Inp_", "Bwd_"), ("Lat_", "Frq_"), ("Bwd_", "Frq_"), ("Lat_", "Bwd_"), ("Lat_", "Pdr_"), ("Bwd_", "Pdr_")]
 
 # The dataset is iterated through for all variable combinations
 for combo in plot3D_var_combo:
@@ -319,7 +315,7 @@ for combo in plot3D_var_combo:
             protocols.append(protocol)
 
             # Create file descriptor
-            datafile3D = open(filename + "parsed/3D/" + combo[0] + combo[1] + protocol + ".txt", "a", 1)
+            datafile3D = open(data_dir + "parsed/3D/" + combo[0] + combo[1] + protocol + ".txt", "a", 1)
 
             # Fill up var_val array with initial values of other configured variables - have to be fixed for a combo (controlled variables)
             for i in range(len(index_array)):
@@ -335,7 +331,7 @@ for combo in plot3D_var_combo:
         if all((var_val_array[i] is None or var_val_array[i] == line[index_array[i]]) for i in range(len(index_array))):
             datafile3D.write(line[index_array[index_0]] + '\t' + line[index_array[index_1]] + '\t' + line[runtime_index] + '\n')
 
-    add_empty_lines(filename + "parsed/3D/" + combo[0] + combo[1] + protocol + ".txt")
+    add_empty_lines(data_dir + "parsed/3D/" + combo[0] + combo[1] + protocol + ".txt")
 
 # ----  INTERPOLATION & WINNER SEARCH for 2D experiments -------
 # winners is a two dimensional array
@@ -351,13 +347,13 @@ for i in range(4):
 # print(winners)
 
 # Get all generated 2D plot files - only files (not directories) were generated in this path
-plots2D = os.listdir(filename + "parsed/2D/")
-# print(plots2D)
+plots2D = os.listdir(data_dir + "parsed/2D/")
+print(plots2D)
 
 print(comm_rounds_array)
-# Interolate generated files
+# Interpolate generated files
 for i in range(len(plots2D)):
-    plot = open(filename + "parsed/2D/" + plots2D[i], "r")
+    plot = open(data_dir + "parsed/2D/" + plots2D[i], "r")
     plot_type = plots2D[i][0:4]  # String
 
     # Reparse protocol name from file name - may be optimisable
@@ -387,13 +383,13 @@ for i in range(len(plots2D)):
     elif plot_type == "Pdr_":
         # f has the form a*e^(b*x) + c
         f = interpolate_exponential(plot)
-        if f == [-1, -1]:
+        if f[0] == -1 and f[1] == -1:
             runtimes_file_2D.write(plots2D[i] + " -> not enough datapoints.\n")
             continue
         else:
             runtimes_file_2D.write(plots2D[i] + " -> f(x) = " + str(f[0]) + "*e^(" + str(f[1]) + "*x) + " + str(f[2]) + "\n")
 
-    elif plot_type == "Bdw_":
+    elif plot_type == "Bwd_":
         # f has the form a/x + b
         f = interpolate_inverse(plot)
         if f[0] == -1:
@@ -405,13 +401,13 @@ for i in range(len(plots2D)):
                 continue
             runtimes_file_2D.write(plots2D[i] + " -> f(x) = " + str(f[0]) + "/x + " + str(f[1]) + "\n")
 
-    #elif plot_type == "Set_":
+    #elif plot_type == "Inp_":
     #    print("Not plotting for set for now")
     #    continue
 
     else:
         f = interpolate_file(plot, 2)
-        if f == [-1, -1]:
+        if f[0] == -1 and f[1] == -1:
             runtimes_file_2D.write(plots2D[i] + " -> not enough datapoints.\n")
         else:
             runtimes_file_2D.write(plots2D[i] + " -> f(x) = " + str(f[0]) + "*x**2 + " + str(f[1]) + "*x**1 + " + str(f[2]) + "\n")
