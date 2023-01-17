@@ -8,6 +8,10 @@ import os
 import numpy as np
 from scipy.optimize import curve_fit
 
+# customa imports
+import re
+import glob
+
 # SEVARE PARSER 2.0 - adapted to new table forms
 # Format of short datatable:
 #
@@ -240,6 +244,15 @@ dataset_array = []
 for row in data_table.readlines():
     dataset_array.append(row.split(';'))
 
+# get highest input value from summary
+maxinput = -1
+with open(glob.glob(data_dir + "E*-run-summary.dat")[0], "r") as f:
+    for line in f:
+        match = re.search(r"Inputs.*", line)
+        if match:
+            maxinput = match.group(0).split(" ")[-1]
+            break
+
 # - - - - - - - Parsing for 2D plots - - - - - - - -
 # Go through dataset for each variable
 # print(index_array)
@@ -269,10 +282,13 @@ for i in range(len(index_array)):
             # Fill up the var_val array with initial values of every other configured parameter - have to be fix (controlled variables)
             for j in range(len(index_array)):
                 if index_array[j] != -1 and i != j:
-                    var_val_array[j] = line[index_array[j]]
+                    if j < len(index_array) - 1:
+                        var_val_array[j] = line[index_array[j]]
+                    else:
+                        var_val_array[-1] = maxinput # Adapt: fix to highest input
                 else:
                     var_val_array[j] = None  # may be inefficient
-            # print(protocol + str(var_name_array[i]) + str(var_val_array))
+            print(protocol + str(var_name_array[i]) + str(var_val_array))
 
             # Fill up metrics arrays
             comm_rounds_array.append(line[comm_rounds_index])
