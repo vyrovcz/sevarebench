@@ -98,10 +98,6 @@ Design and define node connection model. Recommended and intuitive is the circul
 
 ## Known limitations
 
-### No protocol compile option support
-
-When compiling the SMC protocols, it is possible to specify compile options such as "-DINSECURE" in the file CONFIG.mine of MP-SPDZ. A custom flag to support this feature is desired.
-
 ### No program compile option support
 
 When compiling high level SMC programs, currently a default value with maxmimum support for most protocols is used, such as "-B 64". In some cases, specifiying a custom value can improve performance. Support for custom parameters is desired.
