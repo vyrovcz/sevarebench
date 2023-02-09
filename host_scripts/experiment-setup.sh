@@ -23,6 +23,18 @@ groupsize=${#nodes[*]}
 #### set networking environment
 #######
 
+# driver for Intel Network Adapter for E810 100G card
+installDriver() {
+	wget https://downloadmirror.intel.com/763930/ice-1.10.1.2.2.tar.gz
+	tar -xf ice-1.10.1.2.2.tar.gz
+	cd ice-1.10.1.2.2/src/
+	make install
+	cd ..
+	mkdir -p /lib/firmware/updates/intel/ice/ddp/
+	cp ddp/ice-1.3.30.0.pkg /lib/firmware/updates/intel/ice/ddp/
+	modprobe -r ice
+	modprobe ice
+}
 
 # If the testnodes are directly connected from NIC to NIC and
 # not via a switch, we need to create individual networks for each
@@ -63,6 +75,10 @@ ips=()
 ####elif [ "$nic1" != 0 ]; then
 # three nodes direct connection topology if true
 if [ "$nic1" != 0 ]; then
+
+	# to achieve high speeds, install ddp drivers
+	[ "$(hostname | grep -cE "meld|tinyman|yieldly|gard|goracle|zone")" -eq 1 ] && \
+		installDriver
 
 	# verify that nodes array is circularly sorted like
 	# --nodes nodeA,nodeB,nodeC or --node nodeC,nodeA,nodeB
