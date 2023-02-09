@@ -212,7 +212,7 @@ exportExperimentResults() {
     fi
 
     echo " pushing experiment measurement data to git repo$repourl"
-    cd git-upload || error ${LINENO} "${FUNCNAME[0]} cd into gitrepo failed"
+    cd git-upload || warning "${FUNCNAME[0]}:${LINENO} cd into gitrepo failed"
     {
         # a pull is not really required, but for small sizes it doesn't hurt
         git pull
@@ -222,7 +222,7 @@ exportExperimentResults() {
         git add . 
         git commit -a -m "script upload"
         git push 
-    } &> /dev/null || warning "${FUNCNAME[0]} git upload failed"
+    } &> /dev/null || warning "${FUNCNAME[0]}:${LINENO} git upload failed"
         okfail ok " upload success" 
 }
 
