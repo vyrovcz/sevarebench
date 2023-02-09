@@ -222,7 +222,7 @@ exportExperimentResults() {
         git add . 
         git commit -a -m "script upload"
         git push 
-    } &> /dev/null || error ${LINENO} "${FUNCNAME[0]} git upload failed"
+    } &> /dev/null || warning "${FUNCNAME[0]} git upload failed"
         okfail ok " upload success" 
 }
 

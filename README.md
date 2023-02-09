@@ -32,7 +32,7 @@ Use the public key to create a new deploy key for your repository. Add a new Dep
 
 ```
 ssh -p 10022 <username>@<pos-management-server-hostname>
-git clone https://gitlab.lrz.de/tumi8-theses/smc/ba-obrman/code.git sevarebench
+git clone https://github.com/vyrovcz/sevarebench.git
 cd sevarebench
 ```
 
