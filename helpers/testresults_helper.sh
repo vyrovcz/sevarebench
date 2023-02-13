@@ -202,6 +202,22 @@ exportExperimentResults() {
     column -s ';' -t "$datatableFull" > "${datatableFull::-3}"tsv
     okfail ok "exported short and full results (${datatableShort::-3}tsv)"
 
+    # Add speedtest infos to summaryfile
+    {
+        echo -e "\n\nNetworking Information"
+        echo "Speedtest Info"
+        # get speedtest results
+        for node in "${NODES[@]}"; do
+            grep -hE "measured speed|Threads|total" "$RPATH/$node"/speedtest 
+        done
+        # get pingtest results
+        echo -e "\nLatency Info"
+        for node in "${NODES[@]}"; do
+            echo "Node $node statistics"
+            grep -hE "statistics|rtt" "$RPATH/$node"/pinglog
+        done
+    } >> "$SUMMARYFILE"
+
     # push to measurement data git
     repourl=$(grep "repoupload" global-variables.yml | cut -d ':' -f 2-)
     # check if upload git does not exist yet

@@ -109,7 +109,7 @@ if [ "$nic1" != 0 ]; then
 else
 	# support any groupsizes
 	# store other participants ips
-	for i in $(seq 2 "$groupsize"); do
+	for i in $(seq 2 $((groupsize+1))); do
 		[ "$ipaddr" -ne "$i" ] && ips+=( "$i" )
 	done
 
@@ -121,10 +121,49 @@ fi
 # wait for others to finish setup
 pos_sync
 
+###
+# Networking tests
+
+# don't start test simultaneously
+sleep "$ipaddr"
+
 # log link test
 for ip in "${ips[@]}"; do
-	ping -c 2 10.10."$network"."$ip" &>> pinglog || true
+	ping -c 5 10.10."$network"."$ip" &>> pinglog || true
 done
+
+pos_upload pinglog
+
+# log link test
+# shellcheck source=../tools/speedtest.sh
+source "$REPO2_DIR"/tools/speedtest.sh
+
+{
+	startserver
+
+	for serverip in $(seq 2 $((groupsize+1))); do
+		for clientip in $(seq 2 $((groupsize+1))); do
+			pos_sync
+			# skip the server
+			[ "$serverip" -eq "$clientip" ] && continue
+			# skip other clients for now
+			[ "$ipaddr" -ne "$clientip" ] && continue
+			# skip the client server roles repetitions, this is here explicitly and not 
+			# merged with case one so that this can be deactivated easily if wanted
+			[ "$serverip" -gt "$clientip" ] && continue			
+
+			hostname="${hostname::-1}$serverip"
+			echo "measured speed between nodes $((serverip-1)) and $((clientip-1))"
+			for k in 1 10; do
+					threads="$k"
+					echo -e "\n Threads: $k"
+					startclient | grep total
+			done
+		done
+	done
+} > speedtest
+
+pos_upload speedtest
 
 
 #######

@@ -22,8 +22,8 @@ checkConnection() {
     success=false
     while [ $i -lt $maxtry ] && ! $success; do
         success=true
-        echo "____ping $1 try $i" >> pinglog
-        ping -q -c 2 "$address" >> pinglog || success=false
+        echo "____ping $1 try $i" >> pinglog_external
+        ping -q -c 2 "$address" >> pinglog_external || success=false
         ((++i))
         sleep 2s
     done
