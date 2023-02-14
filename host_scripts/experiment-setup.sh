@@ -52,6 +52,14 @@ ips=()
 ### for 25G+ speeds set MTU
 if [ "$(hostname | grep -cE "gard|goracle|zone")" -eq 1 ]; then
 
+	# install ddp drivers
+	installDriver
+
+	# store other participants ips
+	for i in $(seq 2 $((groupsize+1))); do
+		[ "$ipaddr" -ne "$i" ] && ips+=( "$i" )
+	done
+
 	ip addr add 10.10."$network"."$ipaddr"/24 dev "$nic0"
 	ip link set dev "$nic0" mtu 9700
 	ip link set dev "$nic0" up
