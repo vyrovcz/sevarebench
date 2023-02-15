@@ -133,7 +133,7 @@ pos_sync
 # Networking tests
 
 # don't start test simultaneously
-sleep "$ipaddr"
+sleep $((ipaddr-2))
 
 # log link test
 for ip in "${ips[@]}"; do
@@ -170,6 +170,8 @@ source "$REPO2_DIR"/tools/speedtest.sh
 		done
 	done
 } > speedtest
+
+stopserver
 
 pos_upload speedtest
 
