@@ -1,6 +1,4 @@
-# Testing Branch for TTP extension implementation
-
-# Benchmark MP-SPDZ programs in pos testing environments
+# Benchmark MP-SPDZ Secure Multiparty Computation programs in pos orchestration  environments
 
 sevarebench is a framework for running [MP-SPDZ](https://github.com/data61/MP-SPDZ#protocols) SMC protocols in a [pos](https://dl.acm.org/doi/10.1145/3485983.3494841) -enabled testbed environment.
 
